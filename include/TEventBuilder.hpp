@@ -20,14 +20,15 @@ class TEventBuilder
 {
  public:
   TEventBuilder(){};
-  TEventBuilder(ChSettingsVec_t chSettingsVec, ModSettingsVec_t modSettingsVec,
+  TEventBuilder(Double_t timeWindow, ChSettingsVec_t chSettingsVec,
+                ModSettingsVec_t modSettingsVec,
                 std::vector<std::string> fileList);
   ~TEventBuilder(){};
 
   void BuildEvent(uint32_t runNo, uint32_t nFiles = 10, uint32_t nThreads = 16);
 
  private:
-  static constexpr uint32_t fTimeWindow = 1000000;  // in ps
+  Double_t fTimeWindow = 1000000;  // in ps
   void SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads = 16,
                             bool firstRun = false);
 

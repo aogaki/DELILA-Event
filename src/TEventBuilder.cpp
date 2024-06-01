@@ -5,10 +5,11 @@
 
 #include <parallel/algorithm>
 
-TEventBuilder::TEventBuilder(ChSettingsVec_t chSettingsVec,
+TEventBuilder::TEventBuilder(Double_t timeWindow, ChSettingsVec_t chSettingsVec,
                              ModSettingsVec_t modSettingsVec,
                              std::vector<std::string> fileList)
 {
+  fTimeWindow = timeWindow * 1000.;
   fChSettingsVec = chSettingsVec;
   fModSettingsVec = modSettingsVec;
   fFileList = fileList;
