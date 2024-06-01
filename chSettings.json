@@ -1,0 +1,1462 @@
+[
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 0,
+            "Channel": 0,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 0,
+            "Channel": 1,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 0,
+            "Channel": 2,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 0,
+            "Channel": 3,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 0,
+            "Channel": 4,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 0,
+            "Channel": 5,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 0,
+            "Channel": 6,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 0,
+            "Channel": 7,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 0,
+            "Channel": 8,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 0,
+            "Channel": 9,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 0,
+            "Channel": 10,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 0,
+            "Channel": 11,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 0,
+            "Channel": 12,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 0,
+            "Channel": 13,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 0,
+            "Channel": 14,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 0,
+            "Channel": 15,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 0
+        }
+    ],
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 1,
+            "Channel": 0,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 1,
+            "Channel": 1,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 1,
+            "Channel": 2,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 1,
+            "Channel": 3,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 1,
+            "Channel": 4,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 1,
+            "Channel": 5,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 1,
+            "Channel": 6,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 1,
+            "Channel": 7,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 1,
+            "Channel": 8,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 1,
+            "Channel": 9,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 1,
+            "Channel": 10,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 1,
+            "Channel": 11,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 1,
+            "Channel": 12,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 1,
+            "Channel": 13,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 1,
+            "Channel": 14,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 1,
+            "Channel": 15,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 1
+        }
+    ],
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 2,
+            "Channel": 0,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 2,
+            "Channel": 1,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 2,
+            "Channel": 2,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 2,
+            "Channel": 3,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 2,
+            "Channel": 4,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 2,
+            "Channel": 5,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 2,
+            "Channel": 6,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 2,
+            "Channel": 7,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 2,
+            "Channel": 8,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 2,
+            "Channel": 9,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 2,
+            "Channel": 10,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 2,
+            "Channel": 11,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 2,
+            "Channel": 12,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 2,
+            "Channel": 13,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 2,
+            "Channel": 14,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 2,
+            "Channel": 15,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 2
+        }
+    ],
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 3,
+            "Channel": 0,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 3,
+            "Channel": 1,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 3,
+            "Channel": 2,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 3,
+            "Channel": 3,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 3,
+            "Channel": 4,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 3,
+            "Channel": 5,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 3,
+            "Channel": 6,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 3,
+            "Channel": 7,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 3,
+            "Channel": 8,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 3,
+            "Channel": 9,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 3,
+            "Channel": 10,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 3,
+            "Channel": 11,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 3,
+            "Channel": 12,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 3,
+            "Channel": 13,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 3,
+            "Channel": 14,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 3,
+            "Channel": 15,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 3
+        }
+    ],
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 4,
+            "Channel": 0,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 4,
+            "Channel": 1,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 4,
+            "Channel": 2,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 4,
+            "Channel": 3,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 4,
+            "Channel": 4,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 4,
+            "Channel": 5,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 4,
+            "Channel": 6,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 4,
+            "Channel": 7,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 4,
+            "Channel": 8,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 4,
+            "Channel": 9,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 4,
+            "Channel": 10,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 4,
+            "Channel": 11,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 4,
+            "Channel": 12,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 4,
+            "Channel": 13,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 4,
+            "Channel": 14,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 4,
+            "Channel": 15,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 4
+        }
+    ],
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 5,
+            "Channel": 0,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 5,
+            "Channel": 1,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 5,
+            "Channel": 2,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 5,
+            "Channel": 3,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 5,
+            "Channel": 4,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 5,
+            "Channel": 5,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 5,
+            "Channel": 6,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 5,
+            "Channel": 7,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 5,
+            "Channel": 8,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 5,
+            "Channel": 9,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 5,
+            "Channel": 10,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 5,
+            "Channel": 11,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 5,
+            "Channel": 12,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 5,
+            "Channel": 13,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 5,
+            "Channel": 14,
+            "HasAC": false,
+            "IsEventTrigger": true,
+            "IsPMT": false,
+            "Module": 5
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 5,
+            "Channel": 15,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": false,
+            "Module": 5
+        }
+    ],
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 6,
+            "Channel": 0,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 6,
+            "Channel": 1,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 6,
+            "Channel": 2,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 6,
+            "Channel": 3,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 6,
+            "Channel": 4,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 6,
+            "Channel": 5,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 6,
+            "Channel": 6,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 6,
+            "Channel": 7,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 6,
+            "Channel": 8,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 6,
+            "Channel": 9,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 6,
+            "Channel": 10,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 6,
+            "Channel": 11,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 6,
+            "Channel": 12,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 6,
+            "Channel": 13,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 6,
+            "Channel": 14,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 6,
+            "Channel": 15,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 6
+        }
+    ],
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 7,
+            "Channel": 0,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 7,
+            "Channel": 1,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 7,
+            "Channel": 2,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 7,
+            "Channel": 3,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 7,
+            "Channel": 4,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 7,
+            "Channel": 5,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 7,
+            "Channel": 6,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 7,
+            "Channel": 7,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 7,
+            "Channel": 8,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 7,
+            "Channel": 9,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 7,
+            "Channel": 10,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 7,
+            "Channel": 11,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 7,
+            "Channel": 12,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 7,
+            "Channel": 13,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 7,
+            "Channel": 14,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 7,
+            "Channel": 15,
+            "HasAC": false,
+            "IsEventTrigger": false,
+            "IsPMT": true,
+            "Module": 7
+        }
+    ],
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 6,
+            "Channel": 0,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 6,
+            "Channel": 1,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 6,
+            "Channel": 2,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 6,
+            "Channel": 3,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 6,
+            "Channel": 4,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 6,
+            "Channel": 5,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 6,
+            "Channel": 6,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 6,
+            "Channel": 7,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 6,
+            "Channel": 8,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 6,
+            "Channel": 9,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 6,
+            "Channel": 10,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 6,
+            "Channel": 11,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 6,
+            "Channel": 12,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 6,
+            "Channel": 13,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 6,
+            "Channel": 14,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 6,
+            "Channel": 15,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 8
+        }
+    ],
+    [
+        {
+            "ACChannel": 0,
+            "ACModule": 7,
+            "Channel": 0,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 1,
+            "ACModule": 7,
+            "Channel": 1,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 2,
+            "ACModule": 7,
+            "Channel": 2,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 3,
+            "ACModule": 7,
+            "Channel": 3,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 4,
+            "ACModule": 7,
+            "Channel": 4,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 5,
+            "ACModule": 7,
+            "Channel": 5,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 6,
+            "ACModule": 7,
+            "Channel": 6,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 7,
+            "ACModule": 7,
+            "Channel": 7,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 8,
+            "ACModule": 7,
+            "Channel": 8,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 9,
+            "ACModule": 7,
+            "Channel": 9,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 10,
+            "ACModule": 7,
+            "Channel": 10,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 11,
+            "ACModule": 7,
+            "Channel": 11,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 12,
+            "ACModule": 7,
+            "Channel": 12,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 13,
+            "ACModule": 7,
+            "Channel": 13,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 14,
+            "ACModule": 7,
+            "Channel": 14,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        },
+        {
+            "ACChannel": 15,
+            "ACModule": 7,
+            "Channel": 15,
+            "HasAC": true,
+            "IsEventTrigger": true,
+            "IsPMT": true,
+            "Module": 9
+        }
+    ]
+]
