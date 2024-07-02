@@ -9,7 +9,7 @@ TEventBuilder::TEventBuilder(Double_t timeWindow, ChSettingsVec_t chSettingsVec,
                              ModSettingsVec_t modSettingsVec,
                              std::vector<std::string> fileList)
 {
-  fTimeWindow = timeWindow * 1000.;
+  fTimeWindow = timeWindow;
   fChSettingsVec = chSettingsVec;
   fModSettingsVec = modSettingsVec;
   fFileList = fileList;
@@ -37,6 +37,12 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
   ROOT::EnableThreadSafety();
 
   fHitVec.clear();
+  auto oneFile = new TFile(fFileList[0].c_str(), "READ");
+  auto tree = dynamic_cast<TTree *>(oneFile->Get("ELIADE_Tree"));
+  auto nEntries = tree->GetEntries();
+  delete oneFile;
+  fHitVec.reserve(nEntries * nFiles * 1.1);
+
   uint32_t nThreads = nFiles;
   std::vector<std::thread> threads;
   for (auto i = 0; i < nThreads; i++) {
@@ -51,8 +57,8 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
           }
           fileName = fFileList[0];
           fFileList.erase(fFileList.begin());
+          std::cout << "Loading file: " << fileName << std::endl;
         }
-        std::cout << "Loading file: " << fileName << std::endl;
         auto file = TFile::Open(fileName, "READ");
         if (!file) {
           std::cerr << "File not found: " << fileName << std::endl;
@@ -75,12 +81,12 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
         tree->SetBranchStatus("FineTS", kTRUE);
         tree->SetBranchAddress("FineTS", &ts);
 
-        auto hitsVec = std::make_unique<std::vector<DELILAHit>>();
+        auto hitsVec = std::make_unique<std::vector<HitData>>();
         hitsVec->reserve(tree->GetEntries());
         for (auto i = 0; i < tree->GetEntries(); i++) {
           tree->GetEntry(i);
           hitsVec->emplace_back(mod, ch, adc,
-                                ts - fModSettingsVec[mod].timeOffset * 1000.);
+                                ts / 1000. - fModSettingsVec[mod].timeOffset);
         }
 
         file->Close();
@@ -97,7 +103,7 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
   }
 
   __gnu_parallel::sort(fHitVec.begin(), fHitVec.end(),
-                       [](const DELILAHit &a, const DELILAHit &b) {
+                       [](const HitData &a, const HitData &b) {
                          return a.TimeStamp < b.TimeStamp;
                        });
   std::cout << fHitVec.size() << " hits  loaded" << std::endl;

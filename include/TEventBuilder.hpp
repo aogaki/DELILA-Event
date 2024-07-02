@@ -36,7 +36,7 @@ class TEventBuilder
   ModSettingsVec_t fModSettingsVec;
   ChSettingsVec_t fChSettingsVec;
 
-  std::vector<DELILAHit> fHitVec;
+  std::vector<HitData> fHitVec;
   std::mutex fHitVecMutex;
   void LoadHitsMT(uint32_t nFiles = 1);
 };

@@ -175,5 +175,7 @@ void TTimeOffset::UpdateModSettings(ModSettingsVec_t &modSettings)
       exit(1);
     }
     modSettings[i].timeOffset = j[i]["TimeOffset"];
+    std::cout << "Module " << modSettings[i].mod << ": "
+              << modSettings[i].timeOffset << " ns" << std::endl;
   }
 }

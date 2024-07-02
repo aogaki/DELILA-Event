@@ -112,13 +112,14 @@ int main(int argc, char *argv[])
   std::string dirName = "/home/aogaki/DAQ/DELILA-Event/data";
   int runNo = 43;
   RunMode runMode = RunMode::EventBuild;
-  uint32_t nFiles = 10;
+  uint32_t nFilesLoop = 0;
+  uint32_t nFiles = 0;
   uint32_t nThreads = 16;
-  Double_t timeWindow = 1000;  // in ns
+  Double_t timeWindow = 2000;  // in ns
   // -d is directory name
   // -r is run number
   // -t is time offset mode
-  // -f is number of files to be processed in one loop
+  // -l is number of files to be processed in one loop
   // -n is number of threads
   // -w is time window in ns
   // -h is help
@@ -131,6 +132,9 @@ int main(int argc, char *argv[])
     }
     if (std::string(argv[i]) == "-t") {
       runMode = RunMode::TimeOffset;
+    }
+    if (std::string(argv[i]) == "-l") {
+      nFilesLoop = std::stoi(argv[i + 1]);
     }
     if (std::string(argv[i]) == "-f") {
       nFiles = std::stoi(argv[i + 1]);
@@ -148,6 +152,9 @@ int main(int argc, char *argv[])
       std::cout << "  -r <run number> : Set run number" << std::endl;
       std::cout << "  -t : Time offset mode" << std::endl;
       std::cout << "  -f <number of files> : Set number of files to be "
+                   "processed"
+                << std::endl;
+      std::cout << "  -l <number of files> : Set number of files to be "
                    "processed in one loop"
                 << std::endl;
       std::cout << "  -n <number of threads> : Set number of threads"
@@ -163,6 +170,13 @@ int main(int argc, char *argv[])
   if (fileList.size() == 0) {
     std::cerr << "No files found." << std::endl;
     return 1;
+  }
+  if (nFiles != 0 && nFiles < fileList.size()) {
+    fileList.resize(nFiles);
+  }
+
+  if (nFilesLoop == 0) {
+    nFilesLoop = fileList.size();
   }
 
   auto modSettingsVec = GetModSettings("modSettings.json");
@@ -191,7 +205,7 @@ int main(int argc, char *argv[])
 
     auto builder =
         TEventBuilder(timeWindow, chSettingsVec, modSettingsVec, fileList);
-    builder.BuildEvent(runNo, nFiles, nThreads);
+    builder.BuildEvent(runNo, nFilesLoop, nThreads);
   }
 
   return 0;
