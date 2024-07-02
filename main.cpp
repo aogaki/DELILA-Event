@@ -21,25 +21,15 @@
 
 std::vector<std::string> GetFileList(const std::string dirName, const int runNo)
 {
-  std::vector<std::string> tmpList;
+  std::vector<std::string> fileList;
 
-  auto searchKey = Form("run%d_", runNo);
+  auto searchKey = Form(".root");
   for (const auto &entry : std::filesystem::directory_iterator(dirName)) {
     if (entry.path().string().find(searchKey) != std::string::npos) {
-      tmpList.push_back(entry.path().string());
+      fileList.push_back(entry.path().string());
     }
   }
-
-  std::vector<std::string> fileList;
-  for (auto subRunNo = 0; subRunNo < tmpList.size(); subRunNo++) {
-    // Too stupid, think better way
-    searchKey = Form("run%d_%d_", runNo, subRunNo);
-    for (auto fileName : tmpList) {
-      if (fileName.find(searchKey) != std::string::npos) {
-        fileList.push_back(fileName);
-      }
-    }
-  }
+  std::sort(fileList.begin(), fileList.end());
 
   return fileList;
 }
@@ -65,7 +55,6 @@ ModSettingsVec_t GetModSettings(const std::string fileName)
     modSettings.pulserDelay = mod["PulserDelay"];
     modSettings.timeOffset = mod["TimeOffset"];
     modSettings.pulserCh = mod["PulserCh"];
-    // modSettings.Print();
     modSettingsVec.push_back(modSettings);
   }
 
@@ -96,7 +85,6 @@ ChSettingsVec_t GetChSettings(const std::string fileName)
       chSetting.isPMT = ch["IsPMT"];
       chSetting.isEventTrigger = ch["IsEventTrigger"];
       chSetting.hasAC = ch["HasAC"];
-      // chSetting.Print();
       chSettings.push_back(chSetting);
     }
     chSettingsVec.push_back(chSettings);
@@ -109,16 +97,17 @@ enum class RunMode { TimeOffset, EventBuild };
 
 int main(int argc, char *argv[])
 {
-  std::string dirName = "/home/aogaki/DAQ/DELILA-Event/data";
+  std::string dirName = "../data";
   int runNo = 43;
   RunMode runMode = RunMode::EventBuild;
-  uint32_t nFiles = 10;
+  uint32_t nFilesLoop = 0;
+  uint32_t nFiles = 0;
   uint32_t nThreads = 16;
-  Double_t timeWindow = 1000;  // in ns
+  Double_t timeWindow = 2000;  // in ns
   // -d is directory name
   // -r is run number
   // -t is time offset mode
-  // -f is number of files to be processed in one loop
+  // -l is number of files to be processed in one loop
   // -n is number of threads
   // -w is time window in ns
   // -h is help
@@ -131,6 +120,9 @@ int main(int argc, char *argv[])
     }
     if (std::string(argv[i]) == "-t") {
       runMode = RunMode::TimeOffset;
+    }
+    if (std::string(argv[i]) == "-l") {
+      nFilesLoop = std::stoi(argv[i + 1]);
     }
     if (std::string(argv[i]) == "-f") {
       nFiles = std::stoi(argv[i + 1]);
@@ -148,6 +140,9 @@ int main(int argc, char *argv[])
       std::cout << "  -r <run number> : Set run number" << std::endl;
       std::cout << "  -t : Time offset mode" << std::endl;
       std::cout << "  -f <number of files> : Set number of files to be "
+                   "processed"
+                << std::endl;
+      std::cout << "  -l <number of files> : Set number of files to be "
                    "processed in one loop"
                 << std::endl;
       std::cout << "  -n <number of threads> : Set number of threads"
@@ -163,6 +158,13 @@ int main(int argc, char *argv[])
   if (fileList.size() == 0) {
     std::cerr << "No files found." << std::endl;
     return 1;
+  }
+  if (nFiles != 0 && nFiles < fileList.size()) {
+    fileList.resize(nFiles);
+  }
+
+  if (nFilesLoop == 0) {
+    nFilesLoop = fileList.size();
   }
 
   auto modSettingsVec = GetModSettings("modSettings.json");
@@ -191,7 +193,7 @@ int main(int argc, char *argv[])
 
     auto builder =
         TEventBuilder(timeWindow, chSettingsVec, modSettingsVec, fileList);
-    builder.BuildEvent(runNo, nFiles, nThreads);
+    builder.BuildEvent(runNo, nFilesLoop, nThreads);
   }
 
   return 0;

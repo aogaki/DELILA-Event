@@ -14,6 +14,7 @@
 
 #include "DELILAHit.hpp"
 #include "TChSettings.hpp"
+#include "THitClass.hpp"
 #include "TModSettings.hpp"
 
 class TEventBuilder
@@ -28,7 +29,7 @@ class TEventBuilder
   void BuildEvent(uint32_t runNo, uint32_t nFiles = 10, uint32_t nThreads = 16);
 
  private:
-  Double_t fTimeWindow = 1000000;  // in ps
+  Double_t fTimeWindow = 1000;  // in ns
   void SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads = 16,
                             bool firstRun = false);
 
@@ -36,7 +37,7 @@ class TEventBuilder
   ModSettingsVec_t fModSettingsVec;
   ChSettingsVec_t fChSettingsVec;
 
-  std::vector<DELILAHit> fHitVec;
+  std::vector<THitClass> fHitVec;
   std::mutex fHitVecMutex;
   void LoadHitsMT(uint32_t nFiles = 1);
 };

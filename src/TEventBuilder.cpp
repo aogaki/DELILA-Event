@@ -9,7 +9,7 @@ TEventBuilder::TEventBuilder(Double_t timeWindow, ChSettingsVec_t chSettingsVec,
                              ModSettingsVec_t modSettingsVec,
                              std::vector<std::string> fileList)
 {
-  fTimeWindow = timeWindow * 1000.;
+  fTimeWindow = timeWindow;
   fChSettingsVec = chSettingsVec;
   fModSettingsVec = modSettingsVec;
   fFileList = fileList;
@@ -21,7 +21,6 @@ void TEventBuilder::BuildEvent(uint32_t runNo, uint32_t nFiles,
   bool firstRun = true;
   while (true) {
     if (fFileList.size() == 0) {
-      // if (fFileList.size() < 465) {
       break;
     }
 
@@ -58,29 +57,38 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
           std::cerr << "File not found: " << fileName << std::endl;
           break;
         }
-        auto tree = dynamic_cast<TTree *>(file->Get("ELIADE_Tree"));
+        auto tree = dynamic_cast<TTree *>(file->Get("tout"));
 
         tree->SetBranchStatus("*", kFALSE);
-        UChar_t mod, ch;
-        tree->SetBranchStatus("Mod", kTRUE);
-        tree->SetBranchAddress("Mod", &mod);
-        tree->SetBranchStatus("Ch", kTRUE);
-        tree->SetBranchAddress("Ch", &ch);
+        UShort_t brd;
+        tree->SetBranchStatus("Board", kTRUE);
+        tree->SetBranchAddress("Board", &brd);
+        UShort_t ch;
+        tree->SetBranchStatus("Channel", kTRUE);
+        tree->SetBranchAddress("Channel", &ch);
 
-        UShort_t adc;
-        tree->SetBranchStatus("ChargeLong", kTRUE);
-        tree->SetBranchAddress("ChargeLong", &adc);
+        UShort_t ene;
+        tree->SetBranchStatus("Energy", kTRUE);
+        tree->SetBranchAddress("Energy", &ene);
 
-        Double_t ts;
-        tree->SetBranchStatus("FineTS", kTRUE);
-        tree->SetBranchAddress("FineTS", &ts);
+        UShort_t eneShort;
+        tree->SetBranchStatus("EnergyShort", kTRUE);
+        tree->SetBranchAddress("EnergyShort", &eneShort);
 
-        auto hitsVec = std::make_unique<std::vector<DELILAHit>>();
+        ULong64_t ts;
+        tree->SetBranchStatus("Timestamp", kTRUE);
+        tree->SetBranchAddress("Timestamp", &ts);
+
+        UInt_t flag;
+        tree->SetBranchStatus("Flags", kTRUE);
+        tree->SetBranchAddress("Flags", &flag);
+
+        auto hitsVec = std::make_unique<std::vector<THitClass>>();
         hitsVec->reserve(tree->GetEntries());
         for (auto i = 0; i < tree->GetEntries(); i++) {
           tree->GetEntry(i);
-          hitsVec->emplace_back(mod, ch, adc,
-                                ts - fModSettingsVec[mod].timeOffset * 1000.);
+          if (flag == 0) continue;
+          hitsVec->emplace_back(ch, Double_t(ts), brd, ene, eneShort);
         }
 
         file->Close();
@@ -97,8 +105,8 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
   }
 
   __gnu_parallel::sort(fHitVec.begin(), fHitVec.end(),
-                       [](const DELILAHit &a, const DELILAHit &b) {
-                         return a.TimeStamp < b.TimeStamp;
+                       [](const THitClass &a, const THitClass &b) {
+                         return a.Timestamp < b.Timestamp;
                        });
   std::cout << fHitVec.size() << " hits  loaded" << std::endl;
 }
@@ -111,11 +119,11 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
   std::vector<std::thread> threads;
   for (auto i = 0; i < nThreads; i++) {
     threads.emplace_back([this, i, nThreads, runNo, firstRun]() {
-      auto fileName = Form("event_run%d_t%d.root", runNo, i);
+      auto fileName = Form("event_t%d.root", i);
       auto treeName = Form("Event_Tree");
       TFile *file = nullptr;
       TTree *tree = nullptr;
-      std::vector<DELILAHit> *event = new std::vector<DELILAHit>();
+      std::vector<THitClass> *event = new std::vector<THitClass>();
       if (firstRun) {
         file = TFile::Open(fileName, "RECREATE");
         tree = new TTree(treeName, "Event Tree");
@@ -129,35 +137,33 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
 
       for (auto j = i; j < fHitVec.size(); j += nThreads) {
         auto hit = fHitVec.at(j);
-        if (fChSettingsVec[hit.Module][hit.Channel].isEventTrigger) {
-          const auto eventTS = hit.TimeStamp;
-          event->emplace_back(DELILAHit(hit.Module, hit.Channel, hit.Energy,
-                                        hit.TimeStamp - eventTS));
+        if (hit.Board == 0 && hit.Channel == 0) {
+          const Double_t eventTS = hit.Timestamp;
+          event->emplace_back(hit.Channel, hit.Timestamp, hit.Board, hit.Energy,
+                              hit.EnergyShort);
           // Search for hits in the past
           for (auto k = j; k >= 0; k--) {
             auto hitPast = fHitVec.at(k);
-            if (hitPast.TimeStamp < eventTS - fTimeWindow / 2) {
+            if (hitPast.Timestamp < eventTS - fTimeWindow / 2) {
               break;
             }
-            event->emplace_back(DELILAHit(hitPast.Module, hitPast.Channel,
-                                          hitPast.Energy,
-                                          hitPast.TimeStamp - eventTS));
+            event->emplace_back(hit.Channel, hit.Timestamp, hit.Board,
+                                hit.Energy, hit.EnergyShort);
           }
 
           // Search for hits in the future
           for (auto k = j + 1; k < fHitVec.size(); k++) {
             auto hitFuture = fHitVec.at(k);
-            if (hitFuture.TimeStamp > eventTS + fTimeWindow / 2) {
+            if (hitFuture.Timestamp > eventTS + fTimeWindow / 2) {
               break;
             }
-            event->emplace_back(DELILAHit(hitFuture.Module, hitFuture.Channel,
-                                          hitFuture.Energy,
-                                          hitFuture.TimeStamp - eventTS));
+            event->emplace_back(hit.Channel, hit.Timestamp, hit.Board,
+                                hit.Energy, hit.EnergyShort);
           }
 
           std::sort(event->begin(), event->end(),
-                    [](const DELILAHit &a, const DELILAHit &b) {
-                      return a.TimeStamp < b.TimeStamp;
+                    [](const THitClass &a, const THitClass &b) {
+                      return a.Timestamp < b.Timestamp;
                     });
 
           tree->Fill();

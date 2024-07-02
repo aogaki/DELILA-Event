@@ -5,38 +5,38 @@
     },
     {
         "Module": 1,
-        "TimeOffset": 34.78343019215678
+        "TimeOffset": 0.0
     },
     {
         "Module": 2,
-        "TimeOffset": -49.14297568716748
+        "TimeOffset": 0.0
     },
     {
         "Module": 3,
-        "TimeOffset": -78.48366546947419
+        "TimeOffset": 0.0
     },
     {
         "Module": 4,
-        "TimeOffset": 43.39919917260079
+        "TimeOffset": 0.0
     },
     {
         "Module": 5,
-        "TimeOffset": 61.40685979754774
+        "TimeOffset": 0.0
     },
     {
         "Module": 6,
-        "TimeOffset": -587.9366875
+        "TimeOffset": 0.0
     },
     {
         "Module": 7,
-        "TimeOffset": -570.0870735813528
+        "TimeOffset": 0.0
     },
     {
         "Module": 8,
-        "TimeOffset": -560.3827473756469
+        "TimeOffset": 0.0
     },
     {
         "Module": 9,
-        "TimeOffset": -545.0585234735264
+        "TimeOffset": 0.0
     }
 ]
