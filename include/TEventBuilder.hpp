@@ -40,7 +40,8 @@ class TEventBuilder
 
   std::vector<THitClass> fHitVec;
   std::mutex fHitVecMutex;
-  void LoadHitsMT(uint32_t nFiles = 1);
+  std::mutex fFileListMutex;
+  void LoadHitsMT(uint32_t nFiles = 1, uint32_t nThreads = 16);
 };
 
 #endif

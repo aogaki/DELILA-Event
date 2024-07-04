@@ -25,34 +25,34 @@ void TEventBuilder::BuildEvent(uint32_t runNo, uint32_t nFiles,
       break;
     }
 
-    LoadHitsMT(nFiles);
+    LoadHitsMT(nFiles, nThreads);
 
     SearchAndWriteEvents(runNo, nThreads, firstRun);
     firstRun = false;
   }
 }
 
-void TEventBuilder::LoadHitsMT(uint32_t nFiles)
+void TEventBuilder::LoadHitsMT(uint32_t nFiles, uint32_t nThreads)
 {
   ROOT::EnableThreadSafety();
 
   fHitVec.clear();
-  uint32_t nThreads = nFiles;
+  // uint32_t nThreads = nFiles;
   std::vector<std::thread> threads;
   for (auto i = 0; i < nThreads; i++) {
     threads.emplace_back([this, i, nFiles, nThreads]() {
       for (auto j = i; j < nFiles; j += nThreads) {
         TString fileName;
         {
-          std::lock_guard<std::mutex> lock(fHitVecMutex);
+          std::lock_guard<std::mutex> lock(fFileListMutex);
           if (fFileList.size() == 0) {
             std::cerr << "No more file to load" << std::endl;
             break;
           }
           fileName = fFileList[0];
           fFileList.erase(fFileList.begin());
+          std::cout << "Loading file: " << fileName << std::endl;
         }
-        std::cout << "Loading file: " << fileName << std::endl;
         auto file = TFile::Open(fileName, "READ");
         if (!file) {
           std::cerr << "File not found: " << fileName << std::endl;
