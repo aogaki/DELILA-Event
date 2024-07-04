@@ -13,13 +13,13 @@
 #include <thread>
 #include <vector>
 
-#include "DELILAHit.hpp"
+#include "THitClass.hpp"
 
-std::vector<std::string> GetFileList(const std::string dirName, const int runNo)
+std::vector<std::string> GetFileList(const std::string dirName)
 {
   std::vector<std::string> fileList;
 
-  auto searchKey = Form("event_run%d_", runNo);
+  auto searchKey = Form("event_t");
   // auto searchKey = Form("event_run%d_s", runNo);
   for (const auto &entry : std::filesystem::directory_iterator(dirName)) {
     if (entry.path().string().find(searchKey) != std::string::npos) {
@@ -30,49 +30,55 @@ std::vector<std::string> GetFileList(const std::string dirName, const int runNo)
   return fileList;
 }
 
-TH2D *hist[17];
+TH2D *hist[34];
 void InitHists()
 {
-  for (auto i = 0; i < 17; i++) {
-    hist[i] = new TH2D(Form("hist_%d", i), Form("hist_%d", i), 10000, -500, 500,
-                       10, -0.5, 9.5);
+  for (auto i = 0; i < 34; i++) {
+    hist[i] = new TH2D(Form("hist_%d", i), Form("hist_%d", i), 20000, -1000,
+                       1000, 112, -0.5, 111.5);
   }
 }
 
 // TH1 is thread safe.  But if you get something trouble, you can use mutex.
 std::mutex histMutex;
+std::mutex counterMutex;
+ULong64_t totalEvents = 0;
+ULong64_t processedEvents = 0;
 void AnalysisThread(TString fileName, uint32_t threadNo)
 {
   ROOT::EnableThreadSafety();
 
   auto file = new TFile(fileName);
   auto tree = (TTree *)file->Get("Event_Tree");
-  std::vector<DELILAHit> *hits = nullptr;
+  std::vector<THitClass> *hits = nullptr;
   tree->SetBranchAddress("Event", &hits);
 
   for (auto i = 0; i < tree->GetEntries(); i++) {
-    if (i != 0 && i % 1000000 == 0) {
-      std::lock_guard<std::mutex> lock(histMutex);
-      std::cout << Form("Thread %02d: ", threadNo) << i << " / "
-                << tree->GetEntries() << std::endl;
-    }
-
     tree->GetEntry(i);
+    bool processFlag = false;
     auto ch = -1;
     for (auto &hit : *hits) {
-      if (hit.TimeStamp == 0. && hit.Module == 0) {
-        ch = hit.Channel;
+      if (hit.Timestamp == 0.) {
+        processFlag = true;
+        ch = hit.Board * 16 + hit.Channel;
         break;
       }
     }
 
-    if (ch != -1) {
+    if (processFlag) {
       for (auto &hit : *hits) {
-        if (hit.TimeStamp != 0.) {
-          hist[ch]->Fill(hit.TimeStamp / 1000., hit.Module);
-          hist[16]->Fill(hit.TimeStamp / 1000., hit.Module);
+        if (hit.Timestamp != 0.) {
+          auto id = hit.Board * 16 + hit.Channel;
+          if (ch < 34) hist[ch]->Fill(hit.Timestamp, id);
         }
       }
+    }
+
+    std::lock_guard<std::mutex> lock(counterMutex);
+    processedEvents++;
+    if (processedEvents % 1000000 == 0) {
+      std::cout << "\r" << processedEvents << " / " << totalEvents
+                << std::flush;
     }
   }
 
@@ -84,7 +90,14 @@ void reader()
   gSystem->Load("./libEveBuilder.so");
   InitHists();
 
-  auto fileList = GetFileList("./", 95);
+  auto fileList = GetFileList("./");
+  for (auto &fileName : fileList) {
+    auto file = new TFile(fileName.c_str());
+    auto tree = (TTree *)file->Get("Event_Tree");
+    totalEvents += tree->GetEntries();
+    file->Close();
+    delete file;
+  }
 
   std::vector<std::thread> threads;
   for (auto i = 0; i < fileList.size(); i++) {
@@ -94,4 +107,8 @@ void reader()
   for (auto &thread : threads) {
     thread.join();
   }
+
+  std::cout << std::endl;
+
+  hist[0]->Draw("COLZ");
 }

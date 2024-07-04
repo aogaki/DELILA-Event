@@ -5,7 +5,8 @@
 
 #include <parallel/algorithm>
 
-TEventBuilder::TEventBuilder(Double_t timeWindow, ChSettingsVec_t chSettingsVec,
+TEventBuilder::TEventBuilder(Double_t timeWindow,
+                             ELIGANTSettingsVec_t chSettingsVec,
                              ModSettingsVec_t modSettingsVec,
                              std::vector<std::string> fileList)
 {
@@ -59,6 +60,10 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
         }
         auto tree = dynamic_cast<TTree *>(file->Get("tout"));
 
+        if (j == 0) {
+          fHitVec.reserve(tree->GetEntries() * nFiles * 1.1);
+        }
+
         tree->SetBranchStatus("*", kFALSE);
         UShort_t brd;
         tree->SetBranchStatus("Board", kTRUE);
@@ -88,7 +93,7 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
         for (auto i = 0; i < tree->GetEntries(); i++) {
           tree->GetEntry(i);
           if (flag == 0) continue;
-          hitsVec->emplace_back(ch, Double_t(ts), brd, ene, eneShort);
+          hitsVec->emplace_back(ch, Double_t(ts) / 1000., brd, ene, eneShort);
         }
 
         file->Close();
@@ -96,6 +101,7 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
         std::lock_guard<std::mutex> lock(fHitVecMutex);
         fHitVec.insert(fHitVec.end(), std::make_move_iterator(hitsVec->begin()),
                        std::make_move_iterator(hitsVec->end()));
+        std::cout << fileName << " loaded" << std::endl;
       }
     });
   }
@@ -137,28 +143,43 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
 
       for (auto j = i; j < fHitVec.size(); j += nThreads) {
         auto hit = fHitVec.at(j);
-        if (hit.Board == 0 && hit.Channel == 0) {
-          const Double_t eventTS = hit.Timestamp;
-          event->emplace_back(hit.Channel, hit.Timestamp, hit.Board, hit.Energy,
+        if (fChSettingsVec.at(hit.Board).at(hit.Channel).isEventTrigger) {
+          const Double_t eventTS =
+              hit.Timestamp +
+              fChSettingsVec.at(hit.Board).at(hit.Channel).timeOffset;
+          event->emplace_back(hit.Channel, 0, hit.Board, hit.Energy,
                               hit.EnergyShort);
           // Search for hits in the past
-          for (auto k = j; k >= 0; k--) {
-            auto hitPast = fHitVec.at(k);
-            if (hitPast.Timestamp < eventTS - fTimeWindow / 2) {
-              break;
+          if (j > 0) {
+            for (auto k = j - 1; k >= 0; k--) {
+              auto hitPast = fHitVec.at(k);
+              auto hitTS = hitPast.Timestamp + fChSettingsVec.at(hitPast.Board)
+                                                   .at(hitPast.Channel)
+                                                   .timeOffset;
+              if (hitTS < eventTS - fTimeWindow / 2) {
+                break;
+              }
+              event->emplace_back(hitPast.Channel, hitTS - eventTS,
+                                  hitPast.Board, hitPast.Energy,
+                                  hitPast.EnergyShort);
             }
-            event->emplace_back(hit.Channel, hit.Timestamp, hit.Board,
-                                hit.Energy, hit.EnergyShort);
           }
 
           // Search for hits in the future
-          for (auto k = j + 1; k < fHitVec.size(); k++) {
-            auto hitFuture = fHitVec.at(k);
-            if (hitFuture.Timestamp > eventTS + fTimeWindow / 2) {
-              break;
+          if (j + 1 < fHitVec.size()) {
+            for (auto k = j + 1; k < fHitVec.size(); k++) {
+              auto hitFuture = fHitVec.at(k);
+              auto hitTS =
+                  hitFuture.Timestamp + fChSettingsVec.at(hitFuture.Board)
+                                            .at(hitFuture.Channel)
+                                            .timeOffset;
+              if (hitTS > eventTS + fTimeWindow / 2) {
+                break;
+              }
+              event->emplace_back(hitFuture.Channel, hitTS - eventTS,
+                                  hitFuture.Board, hitFuture.Energy,
+                                  hitFuture.EnergyShort);
             }
-            event->emplace_back(hit.Channel, hit.Timestamp, hit.Board,
-                                hit.Energy, hit.EnergyShort);
           }
 
           std::sort(event->begin(), event->end(),

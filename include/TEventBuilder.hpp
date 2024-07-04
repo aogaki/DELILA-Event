@@ -14,6 +14,7 @@
 
 #include "DELILAHit.hpp"
 #include "TChSettings.hpp"
+#include "TELIGANTSettings.hpp"
 #include "THitClass.hpp"
 #include "TModSettings.hpp"
 
@@ -21,7 +22,7 @@ class TEventBuilder
 {
  public:
   TEventBuilder(){};
-  TEventBuilder(Double_t timeWindow, ChSettingsVec_t chSettingsVec,
+  TEventBuilder(Double_t timeWindow, ELIGANTSettingsVec_t chSettingsVec,
                 ModSettingsVec_t modSettingsVec,
                 std::vector<std::string> fileList);
   ~TEventBuilder(){};
@@ -35,7 +36,7 @@ class TEventBuilder
 
   std::vector<std::string> fFileList;
   ModSettingsVec_t fModSettingsVec;
-  ChSettingsVec_t fChSettingsVec;
+  ELIGANTSettingsVec_t fChSettingsVec;
 
   std::vector<THitClass> fHitVec;
   std::mutex fHitVecMutex;

@@ -15,6 +15,7 @@
 
 #include "DELILAHit.hpp"
 #include "TChSettings.hpp"
+#include "TELIGANTSettings.hpp"
 #include "TEventBuilder.hpp"
 #include "TModSettings.hpp"
 #include "TTimeOffset.hpp"
@@ -91,6 +92,35 @@ ChSettingsVec_t GetChSettings(const std::string fileName)
   }
 
   return chSettingsVec;
+}
+
+ELIGANTSettingsVec_t GetELIGANTSettings(const std::string fileName)
+{
+  ELIGANTSettingsVec_t eligantSettingsVec;
+
+  std::ifstream ifs(fileName);
+  if (!ifs) {
+    std::cerr << "File not found: " << fileName << std::endl;
+    return eligantSettingsVec;
+  }
+
+  nlohmann::json j;
+  ifs >> j;
+
+  for (const auto &mod : j) {
+    std::vector<ELIGANTSettings_t> eligantSettings;
+    for (const auto &ch : mod) {
+      ELIGANTSettings_t eligantSetting;
+      eligantSetting.mod = ch["Module"];
+      eligantSetting.ch = ch["Channel"];
+      eligantSetting.timeOffset = ch["TimeOffset"];
+      eligantSetting.isEventTrigger = ch["IsEventTrigger"];
+      eligantSettings.push_back(eligantSetting);
+    }
+    eligantSettingsVec.push_back(eligantSettings);
+  }
+
+  return eligantSettingsVec;
 }
 
 enum class RunMode { TimeOffset, EventBuild };
@@ -174,9 +204,16 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  auto chSettingsVec = GetChSettings("chSettings.json");
-  if (chSettingsVec.size() == 0) {
-    std::cerr << "No channel settings file \"chSettings.json\" found."
+  // auto chSettingsVec = GetChSettings("chSettings.json");
+  // if (chSettingsVec.size() == 0) {
+  //   std::cerr << "No channel settings file \"chSettings.json\" found."
+  //             << std::endl;
+  //   return 1;
+  // }
+
+  auto eligantSettingsVec = GetELIGANTSettings("eligantSettings.json");
+  if (eligantSettingsVec.size() == 0) {
+    std::cerr << "No ELIGANT settings file \"eligantSettings.json\" found."
               << std::endl;
     return 1;
   }
@@ -192,7 +229,7 @@ int main(int argc, char *argv[])
     timeOffset.UpdateModSettings(modSettingsVec);
 
     auto builder =
-        TEventBuilder(timeWindow, chSettingsVec, modSettingsVec, fileList);
+        TEventBuilder(timeWindow, eligantSettingsVec, modSettingsVec, fileList);
     builder.BuildEvent(runNo, nFilesLoop, nThreads);
   }
 
