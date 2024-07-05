@@ -30,6 +30,9 @@ class TEventBuilder
   void BuildEvent(uint32_t runNo, uint32_t nFiles = 10, uint32_t nThreads = 16);
 
  private:
+  Double_t GetCalibratedEnergy(const ELIGANTSettings_t &chSetting,
+                               const UShort_t &adc);
+
   Double_t fTimeWindow = 1000;  // in ns
   void SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads = 16,
                             bool firstRun = false);

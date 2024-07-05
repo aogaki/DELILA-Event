@@ -32,6 +32,13 @@ void TEventBuilder::BuildEvent(uint32_t runNo, uint32_t nFiles,
   }
 }
 
+Double_t TEventBuilder::GetCalibratedEnergy(const ELIGANTSettings_t &chSetting,
+                                            const UShort_t &adc)
+{
+  return chSetting.p0 + chSetting.p1 * adc + chSetting.p2 * adc * adc +
+         chSetting.p3 * adc * adc * adc;
+}
+
 void TEventBuilder::LoadHitsMT(uint32_t nFiles, uint32_t nThreads)
 {
   ROOT::EnableThreadSafety();
@@ -130,25 +137,61 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
       TFile *file = nullptr;
       TTree *tree = nullptr;
       std::vector<THitClass> *event = new std::vector<THitClass>();
+      UShort_t triggerID;
+      UShort_t multiplicity;
+      UShort_t gammaMultiplicity;
+      UShort_t ejMultiplicity;
+      UShort_t gsMultiplicity;
+      Bool_t isFissionTrigger;
       if (firstRun) {
         file = TFile::Open(fileName, "RECREATE");
         tree = new TTree(treeName, "Event Tree");
         tree->Branch("Event", &event);
+        tree->Branch("TriggerID", &triggerID);
+        tree->Branch("Multiplicity", &multiplicity);
+        tree->Branch("GammaMultiplicity", &gammaMultiplicity);
+        tree->Branch("EJMultiplicity", &ejMultiplicity);
+        tree->Branch("GSMultiplicity", &gsMultiplicity);
+        tree->Branch("IsFissionTrigger", &isFissionTrigger);
       } else {
         file = TFile::Open(fileName, "UPDATE");
         tree = dynamic_cast<TTree *>(file->Get(treeName));
         tree->SetBranchAddress("Event", &event);
+        tree->SetBranchAddress("TriggerID", &triggerID);
+        tree->SetBranchAddress("Multiplicity", &multiplicity);
+        tree->SetBranchAddress("GammaMultiplicity", &gammaMultiplicity);
+        tree->SetBranchAddress("EJMultiplicity", &ejMultiplicity);
+        tree->SetBranchAddress("GSMultiplicity", &gsMultiplicity);
+        tree->SetBranchAddress("IsFissionTrigger", &isFissionTrigger);
       }
       tree->SetDirectory(file);
 
       for (auto j = i; j < fHitVec.size(); j += nThreads) {
         auto hit = fHitVec.at(j);
         if (fChSettingsVec.at(hit.Board).at(hit.Channel).isEventTrigger) {
+          triggerID = hit.Board * 16 + hit.Channel;
+          multiplicity = 0;
+          gammaMultiplicity = 0;
+          ejMultiplicity = 0;
+          gsMultiplicity = 0;
+          isFissionTrigger = false;
+
+          double eneSum = GetCalibratedEnergy(
+              fChSettingsVec.at(hit.Board).at(hit.Channel), hit.Energy);
+
           const Double_t eventTS =
               hit.Timestamp +
               fChSettingsVec.at(hit.Board).at(hit.Channel).timeOffset;
           event->emplace_back(hit.Channel, 0, hit.Board, hit.Energy,
                               hit.EnergyShort);
+          multiplicity++;
+          if (triggerID < 34) {
+            gammaMultiplicity++;
+          } else if (47 < triggerID && triggerID < 85) {
+            ejMultiplicity++;
+          } else if (86 < triggerID && triggerID < 112) {
+            gsMultiplicity++;
+          }
           // Search for hits in the past
           if (j > 0) {
             for (auto k = j - 1; k >= 0; k--) {
@@ -162,6 +205,19 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
               event->emplace_back(hitPast.Channel, hitTS - eventTS,
                                   hitPast.Board, hitPast.Energy,
                                   hitPast.EnergyShort);
+
+              eneSum += GetCalibratedEnergy(
+                  fChSettingsVec.at(hitPast.Board).at(hitPast.Channel),
+                  hitPast.Energy);
+              int32_t id = hitPast.Board * 16 + hitPast.Channel;
+              multiplicity++;
+              if (id < 34) {
+                gammaMultiplicity++;
+              } else if (47 < id && id < 85) {
+                ejMultiplicity++;
+              } else if (86 < id && id < 112) {
+                gsMultiplicity++;
+              }
             }
           }
 
@@ -179,6 +235,19 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
               event->emplace_back(hitFuture.Channel, hitTS - eventTS,
                                   hitFuture.Board, hitFuture.Energy,
                                   hitFuture.EnergyShort);
+
+              eneSum += GetCalibratedEnergy(
+                  fChSettingsVec.at(hitFuture.Board).at(hitFuture.Channel),
+                  hitFuture.Energy);
+              int32_t id = hitFuture.Board * 16 + hitFuture.Channel;
+              multiplicity++;
+              if (id < 34) {
+                gammaMultiplicity++;
+              } else if (47 < id && id < 85) {
+                ejMultiplicity++;
+              } else if (86 < id && id < 112) {
+                gsMultiplicity++;
+              }
             }
           }
 
@@ -186,6 +255,9 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
                     [](const THitClass &a, const THitClass &b) {
                       return a.Timestamp < b.Timestamp;
                     });
+
+          if (multiplicity > 2 && eneSum > 1000 && gammaMultiplicity > 0)
+            isFissionTrigger = true;
 
           tree->Fill();
           event->clear();

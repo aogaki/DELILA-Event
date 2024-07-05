@@ -115,6 +115,16 @@ ELIGANTSettingsVec_t GetELIGANTSettings(const std::string fileName)
       eligantSetting.ch = ch["Channel"];
       eligantSetting.timeOffset = ch["TimeOffset"];
       eligantSetting.isEventTrigger = ch["IsEventTrigger"];
+      eligantSetting.phi = ch["Phi"];
+      eligantSetting.theta = ch["Theta"];
+      eligantSetting.x = ch["X"];
+      eligantSetting.y = ch["Y"];
+      eligantSetting.z = ch["Z"];
+      eligantSetting.r = ch["Distance"];
+      eligantSetting.p0 = ch["p0"];
+      eligantSetting.p1 = ch["p1"];
+      eligantSetting.p2 = ch["p2"];
+      eligantSetting.p3 = ch["p3"];
       eligantSettings.push_back(eligantSetting);
     }
     eligantSettingsVec.push_back(eligantSettings);
