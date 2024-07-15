@@ -15,31 +15,22 @@
 
 #include "DELILAHit.hpp"
 #include "TChSettings.hpp"
+#include "TELIGANTSettings.hpp"
 #include "TEventBuilder.hpp"
 #include "TModSettings.hpp"
 #include "TTimeOffset.hpp"
 
 std::vector<std::string> GetFileList(const std::string dirName, const int runNo)
 {
-  std::vector<std::string> tmpList;
+  std::vector<std::string> fileList;
 
-  auto searchKey = Form("run%d_", runNo);
+  auto searchKey = Form(".root");
   for (const auto &entry : std::filesystem::directory_iterator(dirName)) {
     if (entry.path().string().find(searchKey) != std::string::npos) {
-      tmpList.push_back(entry.path().string());
+      fileList.push_back(entry.path().string());
     }
   }
-
-  std::vector<std::string> fileList;
-  for (auto subRunNo = 0; subRunNo < tmpList.size(); subRunNo++) {
-    // Too stupid, think better way
-    searchKey = Form("run%d_%d_", runNo, subRunNo);
-    for (auto fileName : tmpList) {
-      if (fileName.find(searchKey) != std::string::npos) {
-        fileList.push_back(fileName);
-      }
-    }
-  }
+  std::sort(fileList.begin(), fileList.end());
 
   return fileList;
 }
@@ -65,7 +56,6 @@ ModSettingsVec_t GetModSettings(const std::string fileName)
     modSettings.pulserDelay = mod["PulserDelay"];
     modSettings.timeOffset = mod["TimeOffset"];
     modSettings.pulserCh = mod["PulserCh"];
-    // modSettings.Print();
     modSettingsVec.push_back(modSettings);
   }
 
@@ -96,7 +86,6 @@ ChSettingsVec_t GetChSettings(const std::string fileName)
       chSetting.isPMT = ch["IsPMT"];
       chSetting.isEventTrigger = ch["IsEventTrigger"];
       chSetting.hasAC = ch["HasAC"];
-      // chSetting.Print();
       chSettings.push_back(chSetting);
     }
     chSettingsVec.push_back(chSettings);
@@ -105,11 +94,50 @@ ChSettingsVec_t GetChSettings(const std::string fileName)
   return chSettingsVec;
 }
 
+ELIGANTSettingsVec_t GetELIGANTSettings(const std::string fileName)
+{
+  ELIGANTSettingsVec_t eligantSettingsVec;
+
+  std::ifstream ifs(fileName);
+  if (!ifs) {
+    std::cerr << "File not found: " << fileName << std::endl;
+    return eligantSettingsVec;
+  }
+
+  nlohmann::json j;
+  ifs >> j;
+
+  for (const auto &mod : j) {
+    std::vector<ELIGANTSettings_t> eligantSettings;
+    for (const auto &ch : mod) {
+      ELIGANTSettings_t eligantSetting;
+      eligantSetting.mod = ch["Module"];
+      eligantSetting.ch = ch["Channel"];
+      eligantSetting.timeOffset = ch["TimeOffset"];
+      eligantSetting.isEventTrigger = ch["IsEventTrigger"];
+      eligantSetting.phi = ch["Phi"];
+      eligantSetting.theta = ch["Theta"];
+      eligantSetting.x = ch["X"];
+      eligantSetting.y = ch["Y"];
+      eligantSetting.z = ch["Z"];
+      eligantSetting.r = ch["Distance"];
+      eligantSetting.p0 = ch["p0"];
+      eligantSetting.p1 = ch["p1"];
+      eligantSetting.p2 = ch["p2"];
+      eligantSetting.p3 = ch["p3"];
+      eligantSettings.push_back(eligantSetting);
+    }
+    eligantSettingsVec.push_back(eligantSettings);
+  }
+
+  return eligantSettingsVec;
+}
+
 enum class RunMode { TimeOffset, EventBuild };
 
 int main(int argc, char *argv[])
 {
-  std::string dirName = "/home/aogaki/DAQ/DELILA-Event/data";
+  std::string dirName = "../data";
   int runNo = 43;
   RunMode runMode = RunMode::EventBuild;
   uint32_t nFilesLoop = 0;
@@ -186,9 +214,16 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  auto chSettingsVec = GetChSettings("chSettings.json");
-  if (chSettingsVec.size() == 0) {
-    std::cerr << "No channel settings file \"chSettings.json\" found."
+  // auto chSettingsVec = GetChSettings("chSettings.json");
+  // if (chSettingsVec.size() == 0) {
+  //   std::cerr << "No channel settings file \"chSettings.json\" found."
+  //             << std::endl;
+  //   return 1;
+  // }
+
+  auto eligantSettingsVec = GetELIGANTSettings("eligantSettings.json");
+  if (eligantSettingsVec.size() == 0) {
+    std::cerr << "No ELIGANT settings file \"eligantSettings.json\" found."
               << std::endl;
     return 1;
   }
@@ -204,7 +239,7 @@ int main(int argc, char *argv[])
     timeOffset.UpdateModSettings(modSettingsVec);
 
     auto builder =
-        TEventBuilder(timeWindow, chSettingsVec, modSettingsVec, fileList);
+        TEventBuilder(timeWindow, eligantSettingsVec, modSettingsVec, fileList);
     builder.BuildEvent(runNo, nFilesLoop, nThreads);
   }
 

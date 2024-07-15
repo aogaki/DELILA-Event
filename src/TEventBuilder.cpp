@@ -5,7 +5,8 @@
 
 #include <parallel/algorithm>
 
-TEventBuilder::TEventBuilder(Double_t timeWindow, ChSettingsVec_t chSettingsVec,
+TEventBuilder::TEventBuilder(Double_t timeWindow,
+                             ELIGANTSettingsVec_t chSettingsVec,
                              ModSettingsVec_t modSettingsVec,
                              std::vector<std::string> fileList)
 {
@@ -21,36 +22,36 @@ void TEventBuilder::BuildEvent(uint32_t runNo, uint32_t nFiles,
   bool firstRun = true;
   while (true) {
     if (fFileList.size() == 0) {
-      // if (fFileList.size() < 465) {
       break;
     }
 
-    LoadHitsMT(nFiles);
+    LoadHitsMT(nFiles, nThreads);
 
     SearchAndWriteEvents(runNo, nThreads, firstRun);
     firstRun = false;
   }
 }
 
-void TEventBuilder::LoadHitsMT(uint32_t nFiles)
+Double_t TEventBuilder::GetCalibratedEnergy(const ELIGANTSettings_t &chSetting,
+                                            const UShort_t &adc)
+{
+  return chSetting.p0 + chSetting.p1 * adc + chSetting.p2 * adc * adc +
+         chSetting.p3 * adc * adc * adc;
+}
+
+void TEventBuilder::LoadHitsMT(uint32_t nFiles, uint32_t nThreads)
 {
   ROOT::EnableThreadSafety();
 
   fHitVec.clear();
-  auto oneFile = new TFile(fFileList[0].c_str(), "READ");
-  auto tree = dynamic_cast<TTree *>(oneFile->Get("ELIADE_Tree"));
-  auto nEntries = tree->GetEntries();
-  delete oneFile;
-  fHitVec.reserve(nEntries * nFiles * 1.1);
-
-  uint32_t nThreads = nFiles;
+  // uint32_t nThreads = nFiles;
   std::vector<std::thread> threads;
   for (auto i = 0; i < nThreads; i++) {
     threads.emplace_back([this, i, nFiles, nThreads]() {
       for (auto j = i; j < nFiles; j += nThreads) {
         TString fileName;
         {
-          std::lock_guard<std::mutex> lock(fHitVecMutex);
+          std::lock_guard<std::mutex> lock(fFileListMutex);
           if (fFileList.size() == 0) {
             std::cerr << "No more file to load" << std::endl;
             break;
@@ -64,29 +65,44 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
           std::cerr << "File not found: " << fileName << std::endl;
           break;
         }
-        auto tree = dynamic_cast<TTree *>(file->Get("ELIADE_Tree"));
+        auto tree = dynamic_cast<TTree *>(file->Get("tout"));
+
+        if (j == 0) {
+          fHitVec.reserve(tree->GetEntries() * nFiles * 1.1);
+        }
 
         tree->SetBranchStatus("*", kFALSE);
-        UChar_t mod, ch;
-        tree->SetBranchStatus("Mod", kTRUE);
-        tree->SetBranchAddress("Mod", &mod);
-        tree->SetBranchStatus("Ch", kTRUE);
-        tree->SetBranchAddress("Ch", &ch);
+        UShort_t brd;
+        tree->SetBranchStatus("Board", kTRUE);
+        tree->SetBranchAddress("Board", &brd);
+        UShort_t ch;
+        tree->SetBranchStatus("Channel", kTRUE);
+        tree->SetBranchAddress("Channel", &ch);
 
-        UShort_t adc;
-        tree->SetBranchStatus("ChargeLong", kTRUE);
-        tree->SetBranchAddress("ChargeLong", &adc);
+        UShort_t ene;
+        tree->SetBranchStatus("Energy", kTRUE);
+        tree->SetBranchAddress("Energy", &ene);
 
-        Double_t ts;
-        tree->SetBranchStatus("FineTS", kTRUE);
-        tree->SetBranchAddress("FineTS", &ts);
+        UShort_t eneShort;
+        tree->SetBranchStatus("EnergyShort", kTRUE);
+        tree->SetBranchAddress("EnergyShort", &eneShort);
 
-        auto hitsVec = std::make_unique<std::vector<HitData>>();
+        ULong64_t ts;
+        tree->SetBranchStatus("Timestamp", kTRUE);
+        tree->SetBranchAddress("Timestamp", &ts);
+
+        UInt_t flag;
+        tree->SetBranchStatus("Flags", kTRUE);
+        tree->SetBranchAddress("Flags", &flag);
+
+        auto hitsVec = std::make_unique<std::vector<THitClass>>();
         hitsVec->reserve(tree->GetEntries());
         for (auto i = 0; i < tree->GetEntries(); i++) {
           tree->GetEntry(i);
-          hitsVec->emplace_back(mod, ch, adc,
-                                ts / 1000. - fModSettingsVec[mod].timeOffset);
+          if (flag == 0) continue;
+          Double_t fineTS =
+              Double_t(ts) / 1000. + fChSettingsVec.at(brd).at(ch).timeOffset;
+          hitsVec->emplace_back(ch, fineTS, brd, ene, eneShort);
         }
 
         file->Close();
@@ -94,6 +110,7 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
         std::lock_guard<std::mutex> lock(fHitVecMutex);
         fHitVec.insert(fHitVec.end(), std::make_move_iterator(hitsVec->begin()),
                        std::make_move_iterator(hitsVec->end()));
+        std::cout << fileName << " loaded" << std::endl;
       }
     });
   }
@@ -103,8 +120,8 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles)
   }
 
   __gnu_parallel::sort(fHitVec.begin(), fHitVec.end(),
-                       [](const HitData &a, const HitData &b) {
-                         return a.TimeStamp < b.TimeStamp;
+                       [](const THitClass &a, const THitClass &b) {
+                         return a.Timestamp < b.Timestamp;
                        });
   std::cout << fHitVec.size() << " hits  loaded" << std::endl;
 }
@@ -117,56 +134,145 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
   std::vector<std::thread> threads;
   for (auto i = 0; i < nThreads; i++) {
     threads.emplace_back([this, i, nThreads, runNo, firstRun]() {
-      auto fileName = Form("event_run%d_t%d.root", runNo, i);
+      auto fileName = Form("event_t%d.root", i);
       auto treeName = Form("Event_Tree");
       TFile *file = nullptr;
       TTree *tree = nullptr;
-      std::vector<DELILAHit> *event = new std::vector<DELILAHit>();
+      std::vector<THitClass> *event = new std::vector<THitClass>();
+      UShort_t triggerID;
+      Double_t triggerTS;
+      UShort_t multiplicity;
+      UShort_t gammaMultiplicity;
+      UShort_t ejMultiplicity;
+      UShort_t gsMultiplicity;
+      Bool_t isFissionTrigger;
       if (firstRun) {
         file = TFile::Open(fileName, "RECREATE");
         tree = new TTree(treeName, "Event Tree");
         tree->Branch("Event", &event);
+        tree->Branch("TriggerID", &triggerID);
+        tree->Branch("TriggerTS", &triggerTS);
+        tree->Branch("Multiplicity", &multiplicity);
+        tree->Branch("GammaMultiplicity", &gammaMultiplicity);
+        tree->Branch("EJMultiplicity", &ejMultiplicity);
+        tree->Branch("GSMultiplicity", &gsMultiplicity);
+        tree->Branch("IsFissionTrigger", &isFissionTrigger);
       } else {
         file = TFile::Open(fileName, "UPDATE");
         tree = dynamic_cast<TTree *>(file->Get(treeName));
         tree->SetBranchAddress("Event", &event);
+        tree->SetBranchAddress("TriggerID", &triggerID);
+        tree->SetBranchAddress("TriggerTS", &triggerTS);
+        tree->SetBranchAddress("Multiplicity", &multiplicity);
+        tree->SetBranchAddress("GammaMultiplicity", &gammaMultiplicity);
+        tree->SetBranchAddress("EJMultiplicity", &ejMultiplicity);
+        tree->SetBranchAddress("GSMultiplicity", &gsMultiplicity);
+        tree->SetBranchAddress("IsFissionTrigger", &isFissionTrigger);
       }
       tree->SetDirectory(file);
 
       for (auto j = i; j < fHitVec.size(); j += nThreads) {
         auto hit = fHitVec.at(j);
-        if (fChSettingsVec[hit.Module][hit.Channel].isEventTrigger) {
-          const auto eventTS = hit.TimeStamp;
-          event->emplace_back(DELILAHit(hit.Module, hit.Channel, hit.Energy,
-                                        hit.TimeStamp - eventTS));
+        if (fChSettingsVec.at(hit.Board).at(hit.Channel).isEventTrigger) {
+          bool fillingFlag = true;
+
+          triggerID = hit.Board * 16 + hit.Channel;
+          triggerTS = hit.Timestamp;
+          multiplicity = 0;
+          gammaMultiplicity = 0;
+          ejMultiplicity = 0;
+          gsMultiplicity = 0;
+          isFissionTrigger = false;
+
+          double eneSum = GetCalibratedEnergy(
+              fChSettingsVec.at(hit.Board).at(hit.Channel), hit.Energy);
+
+          const Double_t eventTS = triggerTS;
+          event->emplace_back(hit.Channel, 0, hit.Board, hit.Energy,
+                              hit.EnergyShort);
+          multiplicity++;
+          if (triggerID < 34) {
+            gammaMultiplicity++;
+          } else if (47 < triggerID && triggerID < 85) {
+            ejMultiplicity++;
+          } else if (86 < triggerID && triggerID < 112) {
+            gsMultiplicity++;
+          }
           // Search for hits in the past
-          for (auto k = j; k >= 0; k--) {
-            auto hitPast = fHitVec.at(k);
-            if (hitPast.TimeStamp < eventTS - fTimeWindow / 2) {
-              break;
+          if (fillingFlag && j > 0) {
+            for (auto k = j - 1; k >= 0; k--) {
+              auto hitPast = fHitVec.at(k);
+              if (hitPast.Timestamp < eventTS - fTimeWindow / 2) {
+                break;
+              }
+              event->emplace_back(hitPast.Channel, hitPast.Timestamp - eventTS,
+                                  hitPast.Board, hitPast.Energy,
+                                  hitPast.EnergyShort);
+
+              eneSum += GetCalibratedEnergy(
+                  fChSettingsVec.at(hitPast.Board).at(hitPast.Channel),
+                  hitPast.Energy);
+
+              int32_t id = hitPast.Board * 16 + hitPast.Channel;
+              if (id < triggerID) {
+                fillingFlag = false;
+                break;
+              }
+              multiplicity++;
+              if (id < 34) {
+                gammaMultiplicity++;
+              } else if (47 < id && id < 85) {
+                ejMultiplicity++;
+              } else if (86 < id && id < 112) {
+                gsMultiplicity++;
+              }
             }
-            event->emplace_back(DELILAHit(hitPast.Module, hitPast.Channel,
-                                          hitPast.Energy,
-                                          hitPast.TimeStamp - eventTS));
           }
 
           // Search for hits in the future
-          for (auto k = j + 1; k < fHitVec.size(); k++) {
-            auto hitFuture = fHitVec.at(k);
-            if (hitFuture.TimeStamp > eventTS + fTimeWindow / 2) {
-              break;
+          if (fillingFlag && j + 1 < fHitVec.size()) {
+            for (auto k = j + 1; k < fHitVec.size(); k++) {
+              auto hitFuture = fHitVec.at(k);
+              if (hitFuture.Timestamp > eventTS + fTimeWindow / 2) {
+                break;
+              }
+              event->emplace_back(
+                  hitFuture.Channel, hitFuture.Timestamp - eventTS,
+                  hitFuture.Board, hitFuture.Energy, hitFuture.EnergyShort);
+
+              eneSum += GetCalibratedEnergy(
+                  fChSettingsVec.at(hitFuture.Board).at(hitFuture.Channel),
+                  hitFuture.Energy);
+
+              int32_t id = hitFuture.Board * 16 + hitFuture.Channel;
+              if (id < triggerID) {
+                fillingFlag = false;
+                break;
+              }
+              multiplicity++;
+              if (id < 34) {
+                gammaMultiplicity++;
+              } else if (47 < id && id < 85) {
+                ejMultiplicity++;
+              } else if (86 < id && id < 112) {
+                gsMultiplicity++;
+              }
             }
-            event->emplace_back(DELILAHit(hitFuture.Module, hitFuture.Channel,
-                                          hitFuture.Energy,
-                                          hitFuture.TimeStamp - eventTS));
           }
 
-          std::sort(event->begin(), event->end(),
-                    [](const DELILAHit &a, const DELILAHit &b) {
-                      return a.TimeStamp < b.TimeStamp;
-                    });
+          if (fillingFlag && multiplicity > 1) {
+            std::sort(event->begin(), event->end(),
+                      [](const THitClass &a, const THitClass &b) {
+                        return a.Timestamp < b.Timestamp;
+                      });
 
-          tree->Fill();
+            if (multiplicity > 2 && eneSum > 1000 && gammaMultiplicity > 0)
+              isFissionTrigger = true;
+
+            // if (isFissionTrigger) tree->Fill();
+            tree->Fill();
+          }
+
           event->clear();
         }
       }
