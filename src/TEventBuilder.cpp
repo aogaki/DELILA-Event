@@ -100,7 +100,9 @@ void TEventBuilder::LoadHitsMT(uint32_t nFiles, uint32_t nThreads)
         for (auto i = 0; i < tree->GetEntries(); i++) {
           tree->GetEntry(i);
           if (flag == 0) continue;
-          hitsVec->emplace_back(ch, Double_t(ts) / 1000., brd, ene, eneShort);
+          Double_t fineTS =
+              Double_t(ts) / 1000. + fChSettingsVec.at(brd).at(ch).timeOffset;
+          hitsVec->emplace_back(ch, fineTS, brd, ene, eneShort);
         }
 
         file->Close();
@@ -138,6 +140,7 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
       TTree *tree = nullptr;
       std::vector<THitClass> *event = new std::vector<THitClass>();
       UShort_t triggerID;
+      Double_t triggerTS;
       UShort_t multiplicity;
       UShort_t gammaMultiplicity;
       UShort_t ejMultiplicity;
@@ -148,6 +151,7 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
         tree = new TTree(treeName, "Event Tree");
         tree->Branch("Event", &event);
         tree->Branch("TriggerID", &triggerID);
+        tree->Branch("TriggerTS", &triggerTS);
         tree->Branch("Multiplicity", &multiplicity);
         tree->Branch("GammaMultiplicity", &gammaMultiplicity);
         tree->Branch("EJMultiplicity", &ejMultiplicity);
@@ -158,6 +162,7 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
         tree = dynamic_cast<TTree *>(file->Get(treeName));
         tree->SetBranchAddress("Event", &event);
         tree->SetBranchAddress("TriggerID", &triggerID);
+        tree->SetBranchAddress("TriggerTS", &triggerTS);
         tree->SetBranchAddress("Multiplicity", &multiplicity);
         tree->SetBranchAddress("GammaMultiplicity", &gammaMultiplicity);
         tree->SetBranchAddress("EJMultiplicity", &ejMultiplicity);
@@ -169,7 +174,10 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
       for (auto j = i; j < fHitVec.size(); j += nThreads) {
         auto hit = fHitVec.at(j);
         if (fChSettingsVec.at(hit.Board).at(hit.Channel).isEventTrigger) {
+          bool fillingFlag = true;
+
           triggerID = hit.Board * 16 + hit.Channel;
+          triggerTS = hit.Timestamp;
           multiplicity = 0;
           gammaMultiplicity = 0;
           ejMultiplicity = 0;
@@ -179,9 +187,7 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
           double eneSum = GetCalibratedEnergy(
               fChSettingsVec.at(hit.Board).at(hit.Channel), hit.Energy);
 
-          const Double_t eventTS =
-              hit.Timestamp +
-              fChSettingsVec.at(hit.Board).at(hit.Channel).timeOffset;
+          const Double_t eventTS = triggerTS;
           event->emplace_back(hit.Channel, 0, hit.Board, hit.Energy,
                               hit.EnergyShort);
           multiplicity++;
@@ -193,23 +199,25 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
             gsMultiplicity++;
           }
           // Search for hits in the past
-          if (j > 0) {
+          if (fillingFlag && j > 0) {
             for (auto k = j - 1; k >= 0; k--) {
               auto hitPast = fHitVec.at(k);
-              auto hitTS = hitPast.Timestamp + fChSettingsVec.at(hitPast.Board)
-                                                   .at(hitPast.Channel)
-                                                   .timeOffset;
-              if (hitTS < eventTS - fTimeWindow / 2) {
+              if (hitPast.Timestamp < eventTS - fTimeWindow / 2) {
                 break;
               }
-              event->emplace_back(hitPast.Channel, hitTS - eventTS,
+              event->emplace_back(hitPast.Channel, hitPast.Timestamp - eventTS,
                                   hitPast.Board, hitPast.Energy,
                                   hitPast.EnergyShort);
 
               eneSum += GetCalibratedEnergy(
                   fChSettingsVec.at(hitPast.Board).at(hitPast.Channel),
                   hitPast.Energy);
+
               int32_t id = hitPast.Board * 16 + hitPast.Channel;
+              if (id < triggerID) {
+                fillingFlag = false;
+                break;
+              }
               multiplicity++;
               if (id < 34) {
                 gammaMultiplicity++;
@@ -222,24 +230,25 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
           }
 
           // Search for hits in the future
-          if (j + 1 < fHitVec.size()) {
+          if (fillingFlag && j + 1 < fHitVec.size()) {
             for (auto k = j + 1; k < fHitVec.size(); k++) {
               auto hitFuture = fHitVec.at(k);
-              auto hitTS =
-                  hitFuture.Timestamp + fChSettingsVec.at(hitFuture.Board)
-                                            .at(hitFuture.Channel)
-                                            .timeOffset;
-              if (hitTS > eventTS + fTimeWindow / 2) {
+              if (hitFuture.Timestamp > eventTS + fTimeWindow / 2) {
                 break;
               }
-              event->emplace_back(hitFuture.Channel, hitTS - eventTS,
-                                  hitFuture.Board, hitFuture.Energy,
-                                  hitFuture.EnergyShort);
+              event->emplace_back(
+                  hitFuture.Channel, hitFuture.Timestamp - eventTS,
+                  hitFuture.Board, hitFuture.Energy, hitFuture.EnergyShort);
 
               eneSum += GetCalibratedEnergy(
                   fChSettingsVec.at(hitFuture.Board).at(hitFuture.Channel),
                   hitFuture.Energy);
+
               int32_t id = hitFuture.Board * 16 + hitFuture.Channel;
+              if (id < triggerID) {
+                fillingFlag = false;
+                break;
+              }
               multiplicity++;
               if (id < 34) {
                 gammaMultiplicity++;
@@ -251,15 +260,19 @@ void TEventBuilder::SearchAndWriteEvents(uint32_t runNo, uint32_t nThreads,
             }
           }
 
-          std::sort(event->begin(), event->end(),
-                    [](const THitClass &a, const THitClass &b) {
-                      return a.Timestamp < b.Timestamp;
-                    });
+          if (fillingFlag && multiplicity > 1) {
+            std::sort(event->begin(), event->end(),
+                      [](const THitClass &a, const THitClass &b) {
+                        return a.Timestamp < b.Timestamp;
+                      });
 
-          if (multiplicity > 2 && eneSum > 1000 && gammaMultiplicity > 0)
-            isFissionTrigger = true;
+            if (multiplicity > 2 && eneSum > 1000 && gammaMultiplicity > 0)
+              isFissionTrigger = true;
 
-          tree->Fill();
+            // if (isFissionTrigger) tree->Fill();
+            tree->Fill();
+          }
+
           event->clear();
         }
       }
