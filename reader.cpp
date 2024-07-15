@@ -1,4 +1,5 @@
 #include <TChain.h>
+#include <TF1.h>
 #include <TFile.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -192,4 +193,57 @@ void reader()
   std::cout << std::endl;
 
   histTime[0]->Draw("COLZ");
+
+  std::vector<TH1D *> histVec;
+  const auto nDetectors = histTime[0]->GetYaxis()->GetNbins();
+  for (auto i = 0; i < nDetectors; i++) {
+    auto bin = i + 1;
+    auto name = Form("histDet%03d", i);
+    histVec.push_back(
+        (TH1D *)histTime[0]->ProjectionX(name, bin, bin)->Clone());
+  }
+
+  std::vector<double> timeVec;
+  int counter = 0;
+  for (auto &hist : histVec) {
+    if (hist->GetEntries() > 0) {
+      auto name = Form("f%d", counter++);
+      auto f1 = new TF1(name, "gaus");
+      auto maxBin = hist->GetMaximumBin();
+      auto height = hist->GetBinContent(maxBin);
+      auto mean = hist->GetBinCenter(maxBin);
+      auto sigma = 2;
+      f1->SetParameters(height, mean, sigma);
+      f1->SetRange(mean - sigma, mean + sigma);
+      hist->Fit(f1, "RQ");
+
+      //mean = f1->GetParameter(1);
+      //sigma = f1->GetParameter(2);
+      //f1->SetRange(mean - sigma * 1.2, mean + sigma * 1.2);
+      //hist->Fit(f1, "RQ");
+
+      timeVec.push_back(f1->GetParameter(1));
+    } else {
+      timeVec.push_back(0.);
+    }
+  }
+
+  for (auto i = 0; i < timeVec.size(); i++) {
+    std::cout << i << "\t" << timeVec[i] << std::endl;
+  }
+
+  std::ifstream fin("./eligantSettings.json");
+  nlohmann::json j;
+  fin >> j;
+  for (auto &&mod : j) {
+    std::vector<ELIGANTSettings_t> eligantSettings;
+    for (auto &&ch : mod) {
+      auto timeOffset = ch["TimeOffset"].template get<double>();
+      // auto timeOffset = ch["TimeOffset"];
+      ch["TimeOffset"] = timeOffset - timeVec[ch["DetectorID"]];
+    }
+  }
+  // std::cout << j.dump(4) << std::endl;
+  std::ofstream fout("tmp.json");
+  fout << j.dump(4) << std::endl;
 }
