@@ -16,8 +16,8 @@
 #include <thread>
 #include <vector>
 
-#include "TELIGANTSettings.hpp"
-#include "THitClass.hpp"
+#include "TChSettings.hpp"
+#include "THitData.hpp"
 
 std::vector<std::string> GetFileList(const std::string dirName)
 {
@@ -34,44 +34,47 @@ std::vector<std::string> GetFileList(const std::string dirName)
   return fileList;
 }
 
-ELIGANTSettingsVec_t chSettingsVec;
-ELIGANTSettingsVec_t GetELIGANTSettings(const std::string fileName)
+ChSettingsVec_t chSettingsVec;
+ChSettingsVec_t GetChSettings(const std::string fileName)
 {
-  ELIGANTSettingsVec_t eligantSettingsVec;
+  ChSettingsVec_t chSettingsVec;
 
   std::ifstream ifs(fileName);
   if (!ifs) {
     std::cerr << "File not found: " << fileName << std::endl;
-    return eligantSettingsVec;
+    return chSettingsVec;
   }
 
   nlohmann::json j;
   ifs >> j;
 
   for (const auto &mod : j) {
-    std::vector<ELIGANTSettings_t> eligantSettings;
+    std::vector<ChSettings_t> chSettings;
     for (const auto &ch : mod) {
-      ELIGANTSettings_t eligantSetting;
-      eligantSetting.mod = ch["Module"];
-      eligantSetting.ch = ch["Channel"];
-      eligantSetting.timeOffset = ch["TimeOffset"];
-      eligantSetting.isEventTrigger = ch["IsEventTrigger"];
-      eligantSetting.phi = ch["Phi"];
-      eligantSetting.theta = ch["Theta"];
-      eligantSetting.x = ch["X"];
-      eligantSetting.y = ch["Y"];
-      eligantSetting.z = ch["Z"];
-      eligantSetting.r = ch["Distance"];
-      eligantSetting.p0 = ch["p0"];
-      eligantSetting.p1 = ch["p1"];
-      eligantSetting.p2 = ch["p2"];
-      eligantSetting.p3 = ch["p3"];
-      eligantSettings.push_back(eligantSetting);
+      ChSettings_t chSetting;
+      chSetting.isEventTrigger = ch["IsEventTrigger"];
+      chSetting.mod = ch["Module"];
+      chSetting.ch = ch["Channel"];
+      chSetting.timeOffset = ch["TimeOffset"];
+      chSetting.hasAC = ch["HasAC"];
+      chSetting.ACMod = ch["ACModule"];
+      chSetting.ACCh = ch["ACChannel"];
+      chSetting.phi = ch["Phi"];
+      chSetting.theta = ch["Theta"];
+      chSetting.distance = ch["Distance"];
+      chSetting.x = ch["x"];
+      chSetting.y = ch["y"];
+      chSetting.z = ch["z"];
+      chSetting.p0 = ch["p0"];
+      chSetting.p1 = ch["p1"];
+      chSetting.p2 = ch["p2"];
+      chSetting.p3 = ch["p3"];
+      chSettings.push_back(chSetting);
     }
-    eligantSettingsVec.push_back(eligantSettings);
+    chSettingsVec.push_back(chSettings);
   }
 
-  return eligantSettingsVec;
+  return chSettingsVec;
 }
 
 TH2D *histTime[34];
@@ -91,8 +94,7 @@ void InitHists()
       new TH1D("histSize", "Number of hits in one event", 100, 0.5, 100.5);
 }
 
-Double_t GetCalibratedEnergy(const ELIGANTSettings_t &chSetting,
-                             const UShort_t &adc)
+Double_t GetCalibratedEnergy(const ChSettings_t &chSetting, const UShort_t &adc)
 {
   return chSetting.p0 + chSetting.p1 * adc + chSetting.p2 * adc * adc +
          chSetting.p3 * adc * adc * adc;
@@ -107,7 +109,7 @@ void AnalysisThread(TString fileName, uint32_t threadNo)
 
   auto file = new TFile(fileName);
   auto tree = (TTree *)file->Get("Event_Tree");
-  std::vector<THitClass> *event = nullptr;
+  std::vector<THitData> *event = nullptr;
   tree->SetBranchAddress("Event", &event);
 
   UShort_t triggerID = 0;
@@ -155,7 +157,7 @@ void AnalysisThread(TString fileName, uint32_t threadNo)
         auto x = chSettingsVec[hit.Board][hit.Channel].x;
         auto y = chSettingsVec[hit.Board][hit.Channel].y;
         auto z = chSettingsVec[hit.Board][hit.Channel].z;
-        auto r = chSettingsVec[hit.Board][hit.Channel].r;
+        auto distance = chSettingsVec[hit.Board][hit.Channel].distance;
         auto theta = chSettingsVec[hit.Board][hit.Channel].theta;
         auto phi = chSettingsVec[hit.Board][hit.Channel].phi;
       }
@@ -176,7 +178,8 @@ void AnalysisThread(TString fileName, uint32_t threadNo)
 void reader()
 {
   gSystem->Load("./libEveBuilder.so");
-  chSettingsVec = GetELIGANTSettings("./eligantSettings.json");
+  auto settingsFileName = "./chSettings.json";
+  chSettingsVec = GetChSettings(settingsFileName);
   InitHists();
 
   auto fileList = GetFileList("./");
@@ -232,11 +235,10 @@ void reader()
     std::cout << i << "\t" << timeVec[i] << std::endl;
   }
 
-  std::ifstream fin("./eligantSettings.json");
+  std::ifstream fin(settingsFileName);
   nlohmann::json j;
   fin >> j;
   for (auto &&mod : j) {
-    std::vector<ELIGANTSettings_t> eligantSettings;
     for (auto &&ch : mod) {
       auto timeOffset = ch["TimeOffset"].template get<double>();
       // auto timeOffset = ch["TimeOffset"];

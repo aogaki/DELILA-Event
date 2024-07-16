@@ -1,9 +1,9 @@
-#ifndef THitClass_hpp
-#define THitClass_hpp 1
+#ifndef THitData_hpp
+#define THitData_hpp 1
 
 #include <TROOT.h>
 
-class THitClass : public TObject
+class THitData : public TObject
 {
  public:
   UShort_t Channel;
@@ -13,9 +13,9 @@ class THitClass : public TObject
   UShort_t Energy;
   UShort_t EnergyShort;
 
-  THitClass(){};
-  THitClass(UShort_t Channel, Double_t Timestamp, UShort_t Board,
-            UShort_t Energy, UShort_t EnergyShort)
+  THitData(){};
+  THitData(UShort_t Channel, Double_t Timestamp, UShort_t Board,
+           UShort_t Energy, UShort_t EnergyShort)
   {
     this->Channel = Channel;
     this->Timestamp = Timestamp;
@@ -23,9 +23,9 @@ class THitClass : public TObject
     this->Energy = Energy;
     this->EnergyShort = EnergyShort;
   }
-  virtual ~THitClass(){};
+  virtual ~THitData(){};
 
-  ClassDef(THitClass, 1);
+  ClassDef(THitData, 1);
 };
 
 #endif
