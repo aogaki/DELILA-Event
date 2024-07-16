@@ -118,7 +118,9 @@ int main(int argc, char *argv[])
                 << std::endl;
       std::cout << "  -w <time window in ns> : Set time window in ns"
                 << std::endl;
-      std::cout << "  -h : Show this help" << std::endl;
+      std::cout
+          << "  -d <daq type> : Set DAQ type (ELIGANT or DELILA)" std::cout
+          << "  -h : Show this help" << std::endl;
       std::cout << "To generate a file list, please use \"ls -v1 "
                    "somewhere/*\".  It makes "
                    "the file list in the correct order and format."
