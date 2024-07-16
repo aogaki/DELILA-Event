@@ -33,7 +33,7 @@ void TEventBuilder::BuildEvent(uint32_t nFiles, uint32_t nThreads)
       fileList.push_back(fFileList.front());
       fFileList.erase(fFileList.begin());
     }
-    fHitVec = hitLoader.LoadHitsMT(fileList, fHitType);
+    fHitVec = hitLoader.LoadHitsMT(fileList, nThreads, fHitType);
     std::cout << fHitVec->size() << " hits loaded" << std::endl;
 
     if (fHitVec->size() == 0) {

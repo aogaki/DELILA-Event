@@ -20,7 +20,7 @@ class THitLoader
   ~THitLoader(){};
 
   std::unique_ptr<std::vector<THitData>> LoadHitsMT(
-      std::vector<std::string> fileList,
+      std::vector<std::string> fileList, uint32_t nThreads,
       HitFileType fileType = HitFileType::DELILA);
 
  private:
@@ -28,8 +28,9 @@ class THitLoader
 
   std::unique_ptr<std::vector<THitData>> fHitVec;
   std::mutex fHitVecMutex;
-  void LoadDELILAHits(const std::string &fileName);
-  void LoadELIGANTHits(const std::string &fileName);
+  std::mutex fFileListMutex;
+  void LoadDELILAHits(std::vector<std::string> fileList);
+  void LoadELIGANTHits(std::vector<std::string> fileList);
 };
 
 #endif
