@@ -70,12 +70,12 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
       TFile *file = nullptr;
       TTree *tree = nullptr;
       std::vector<THitData> *event = new std::vector<THitData>();
-      UShort_t triggerID;
+      UChar_t triggerID;
       Double_t triggerTS;
-      UShort_t multiplicity;
-      UShort_t gammaMultiplicity;
-      UShort_t ejMultiplicity;
-      UShort_t gsMultiplicity;
+      UChar_t multiplicity;
+      UChar_t gammaMultiplicity;
+      UChar_t ejMultiplicity;
+      UChar_t gsMultiplicity;
       Bool_t isFissionTrigger;
       if (firstRun) {
         file = TFile::Open(fileName, "RECREATE");
@@ -119,7 +119,7 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
               fChSettingsVec.at(hit.Board).at(hit.Channel), hit.Energy);
 
           const Double_t eventTS = triggerTS;
-          event->emplace_back(hit.Channel, 0, hit.Board, hit.Energy,
+          event->emplace_back(hit.Board, hit.Channel, 0, hit.Energy,
                               hit.EnergyShort);
           multiplicity++;
           if (triggerID < 34) {
@@ -144,8 +144,8 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
                 break;
               }
 
-              event->emplace_back(hitPast.Channel, hitPast.Timestamp - eventTS,
-                                  hitPast.Board, hitPast.Energy,
+              event->emplace_back(hitPast.Board, hitPast.Channel,
+                                  hitPast.Timestamp - eventTS, hitPast.Energy,
                                   hitPast.EnergyShort);
 
               eneSum += GetCalibratedEnergy(
@@ -179,9 +179,9 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
                 break;
               }
 
-              event->emplace_back(
-                  hitFuture.Channel, hitFuture.Timestamp - eventTS,
-                  hitFuture.Board, hitFuture.Energy, hitFuture.EnergyShort);
+              event->emplace_back(hitFuture.Board, hitFuture.Channel,
+                                  hitFuture.Timestamp - eventTS,
+                                  hitFuture.Energy, hitFuture.EnergyShort);
 
               eneSum += GetCalibratedEnergy(
                   fChSettingsVec.at(hitFuture.Board).at(hitFuture.Channel),

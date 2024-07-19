@@ -135,6 +135,9 @@ void THitLoader::LoadELIGANTHits(std::string fileName, uint32_t threadID)
     Double_t fineTS =
         Double_t(ts) / 1000. + fChSettingsVec.at(brd).at(ch).timeOffset;
     hitsVec.emplace_back(brd, ch, fineTS, ene, eneShort);
+
+    // std::cout << "brd: " << brd << " ch: " << ch << " ts: " << fineTS
+    //           << " ene: " << ene << " eneShort: " << eneShort << std::endl;
   }
 
   file->Close();

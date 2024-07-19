@@ -112,15 +112,15 @@ void AnalysisThread(TString fileName, uint32_t threadNo)
   std::vector<THitData> *event = nullptr;
   tree->SetBranchAddress("Event", &event);
 
-  UShort_t triggerID = 0;
+  UChar_t triggerID = 0;
   tree->SetBranchAddress("TriggerID", &triggerID);
-  UShort_t multiplicity = 0;
+  UChar_t multiplicity = 0;
   tree->SetBranchAddress("Multiplicity", &multiplicity);
-  UShort_t gammaMultiplicity = 0;
+  UChar_t gammaMultiplicity = 0;
   tree->SetBranchAddress("GammaMultiplicity", &gammaMultiplicity);
-  UShort_t ejMultiplicity = 0;
+  UChar_t ejMultiplicity = 0;
   tree->SetBranchAddress("EJMultiplicity", &ejMultiplicity);
-  UShort_t gsMultiplicity = 0;
+  UChar_t gsMultiplicity = 0;
   tree->SetBranchAddress("GSMultiplicity", &gsMultiplicity);
   Bool_t isFissionTrigger = false;
   tree->SetBranchAddress("IsFissionTrigger", &isFissionTrigger);
