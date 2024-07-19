@@ -45,6 +45,7 @@ void TEventBuilder::BuildEvent(uint32_t nFiles, uint32_t nThreads)
       SearchAndWriteELIGANTEvents(nThreads, firstRun);
     }
 
+    fHitVec.reset();
     firstRun = false;
   }
 }
@@ -59,7 +60,7 @@ Double_t TEventBuilder::GetCalibratedEnergy(const ChSettings_t &chSetting,
 void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
                                                 bool firstRun)
 {
-  ROOT::EnableThreadSafety();
+  // ROOT::EnableThreadSafety();
 
   std::vector<std::thread> threads;
   for (auto i = 0; i < nThreads; i++) {
@@ -102,7 +103,7 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
       tree->SetDirectory(file);
 
       for (auto j = i; j < fHitVec->size(); j += nThreads) {
-        auto hit = fHitVec->at(j);
+        auto hit = THitData(fHitVec->at(j));
         if (fChSettingsVec.at(hit.Board).at(hit.Channel).isEventTrigger) {
           bool fillingFlag = true;
 
@@ -131,7 +132,7 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
           // Search for hits in the past
           if (fillingFlag && j > 0) {
             for (auto k = j - 1; k >= 0; k--) {
-              auto hitPast = fHitVec->at(k);
+              auto hitPast = THitData(fHitVec->at(k));
               if (hitPast.Timestamp < eventTS - fTimeWindow / 2) {
                 break;
               }
@@ -166,7 +167,7 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
           // Search for hits in the future
           if (fillingFlag && j + 1 < fHitVec->size()) {
             for (auto k = j + 1; k < fHitVec->size(); k++) {
-              auto hitFuture = fHitVec->at(k);
+              auto hitFuture = THitData(fHitVec->at(k));
               if (hitFuture.Timestamp > eventTS + fTimeWindow / 2) {
                 break;
               }
@@ -225,6 +226,6 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
     thread.join();
   }
 
-  // fHitVec->clear();
-  fHitVec.reset(nullptr);
+  fHitVec->clear();
+  // fHitVec->reset();
 }

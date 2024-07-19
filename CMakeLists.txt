@@ -38,6 +38,7 @@ ROOT_GENERATE_DICTIONARY(${MY_DICTIONARY} ${headers} LINKDEF ${MY_LINKDEF})
 
 # ----------------------------------------------------------------------------
 add_library(${LIB_NAME} SHARED ${sources} ${headers} "${MY_DICTIONARY}.cxx")
-target_link_libraries(${LIB_NAME} ${ROOT_LIBRARIES} RHTTP gomp)
+target_link_libraries(${LIB_NAME} ${ROOT_LIBRARIES} RHTTP gomp tbb)
+
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} ${LIB_NAME})

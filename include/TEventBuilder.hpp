@@ -36,7 +36,7 @@ class TEventBuilder
 
   std::vector<std::string> fFileList;
   ChSettingsVec_t fChSettingsVec;
-  std::unique_ptr<std::vector<THitData>> fHitVec;
+  std::unique_ptr<std::vector<HitData_t>> fHitVec;
   HitFileType fHitType = HitFileType::DELILA;
 };
 

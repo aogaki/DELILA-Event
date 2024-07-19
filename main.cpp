@@ -71,7 +71,7 @@ ChSettingsVec_t GetChSettings(const std::string fileName)
 int main(int argc, char *argv[])
 {
   uint32_t nFiles = 0;
-  uint32_t nFilesLoop = 10;
+  uint32_t nFilesLoop = 0;
   uint32_t nThreads = 16;
   Double_t timeWindow = 2000;  // in ns
   HitFileType hitFileType = HitFileType::DELILA;
@@ -144,7 +144,8 @@ int main(int argc, char *argv[])
   }
 
   if (nFilesLoop == 0) {
-    nFilesLoop = fileList.size();  // probably use all memory and crash
+    // nFilesLoop = fileList.size();  // probably use all memory and crash
+    nFilesLoop = nThreads;
   }
 
   auto chSettingsVec = GetChSettings("chSettings.json");
@@ -153,6 +154,31 @@ int main(int argc, char *argv[])
               << std::endl;
     return 1;
   }
+
+  // std::vector<std::unique_ptr<THitData>> hitVec;
+  // std::mutex hitMutex;
+  // std::vector<std::thread> threads;
+  // for (auto n = 0; n < 10; n++) {
+  //   std::cout << "Loop " << n << std::endl;
+  //   for (auto i = 0; i < 16; i++) {
+  //     threads.emplace_back([&hitVec, &hitMutex]() {
+  //       std::vector<std::unique_ptr<THitData>> tmpVec;
+  //       for (auto j = 0; j < 10000000; j++) {
+  //         tmpVec.push_back(std::make_unique<THitData>());
+  //       }
+
+  //       std::lock_guard<std::mutex> lock(hitMutex);
+  //       hitVec.insert(hitVec.end(), std::make_move_iterator(tmpVec.begin()),
+  //                     std::make_move_iterator(tmpVec.end()));
+  //     });
+  //   }
+  //   for (auto &thread : threads) {
+  //     thread.join();
+  //   }
+  //   std::cout << "hitVec size: " << hitVec.size() << std::endl;
+  //   threads.clear();
+  //   hitVec.clear();
+  // }
 
   auto builder =
       TEventBuilder(timeWindow, chSettingsVec, fileList, hitFileType);

@@ -5,6 +5,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "TChSettings.hpp"
@@ -19,18 +20,19 @@ class THitLoader
   THitLoader(ChSettingsVec_t chSettingsVec) : fChSettingsVec(chSettingsVec){};
   ~THitLoader(){};
 
-  std::unique_ptr<std::vector<THitData>> LoadHitsMT(
+  std::unique_ptr<std::vector<HitData_t>> LoadHitsMT(
       std::vector<std::string> fileList, uint32_t nThreads,
       HitFileType fileType = HitFileType::DELILA);
 
  private:
   ChSettingsVec_t fChSettingsVec;
 
-  std::unique_ptr<std::vector<THitData>> fHitVec;
+  std::unique_ptr<std::vector<HitData_t>> fHitVec;
+  std::vector<bool> fInsertFlags;
   std::mutex fHitVecMutex;
   std::mutex fFileListMutex;
-  void LoadDELILAHits(std::vector<std::string> fileList);
-  void LoadELIGANTHits(std::vector<std::string> fileList);
+  void LoadDELILAHits(std::string fileName, uint32_t threadID);
+  void LoadELIGANTHits(std::string fileName, uint32_t threadID);
 };
 
 #endif
