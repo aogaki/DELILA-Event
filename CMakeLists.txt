@@ -32,7 +32,7 @@ file(GLOB conf_files ${PROJECT_SOURCE_DIR}/*.json ${PROJECT_SOURCE_DIR}/include/
 file(COPY ${conf_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Generating Dictionary for ROOT
-set(MY_LINKDEF ${PROJECT_SOURCE_DIR}/include/LinkDef.h)
+set(MY_LINKDEF ${PROJECT_SOURCE_DIR}/dictionary/LinkDef.h)
 set(MY_DICTIONARY "G__${LIB_NAME}")
 ROOT_GENERATE_DICTIONARY(${MY_DICTIONARY} ${headers} LINKDEF ${MY_LINKDEF})
 
