@@ -18,56 +18,6 @@
 #include "THitData.hpp"
 #include "THitLoader.hpp"
 
-ChSettingsVec_t GetChSettings(const std::string fileName)
-{
-  ChSettingsVec_t chSettingsVec;
-
-  std::ifstream ifs(fileName);
-  if (!ifs) {
-    std::cerr << "File not found: " << fileName << std::endl;
-    return chSettingsVec;
-  }
-
-  nlohmann::json j;
-  ifs >> j;
-
-  auto detectorID = 0;
-
-  for (const auto &mod : j) {
-    std::vector<ChSettings_t> chSettings;
-    for (const auto &ch : mod) {
-      ChSettings_t chSetting;
-      chSetting.isEventTrigger = ch["IsEventTrigger"];
-      chSetting.mod = ch["Module"];
-      chSetting.ch = ch["Channel"];
-      chSetting.timeOffset = ch["TimeOffset"];
-      chSetting.hasAC = ch["HasAC"];
-      chSetting.ACMod = ch["ACModule"];
-      chSetting.ACCh = ch["ACChannel"];
-      chSetting.phi = ch["Phi"];
-      chSetting.theta = ch["Theta"];
-      chSetting.distance = ch["Distance"];
-      chSetting.x = ch["x"];
-      chSetting.y = ch["y"];
-      chSetting.z = ch["z"];
-      chSetting.p0 = ch["p0"];
-      chSetting.p1 = ch["p1"];
-      chSetting.p2 = ch["p2"];
-      chSetting.p3 = ch["p3"];
-      if (chSetting.isEventTrigger) {
-        chSetting.detectorID = detectorID;
-        detectorID++;
-      } else {
-        chSetting.detectorID = -1;
-      }
-      chSettings.push_back(chSetting);
-    }
-    chSettingsVec.push_back(chSettings);
-  }
-
-  return chSettingsVec;
-}
-
 int main(int argc, char *argv[])
 {
   uint32_t nFiles = 0;
@@ -144,41 +94,15 @@ int main(int argc, char *argv[])
   }
 
   if (nFilesLoop == 0) {
-    // nFilesLoop = fileList.size();  // probably use all memory and crash
     nFilesLoop = nThreads;
   }
 
-  auto chSettingsVec = GetChSettings("chSettings.json");
+  auto chSettingsVec = TChSettings::GetChSettings("chSettings.json");
   if (chSettingsVec.size() == 0) {
     std::cerr << "No channel settings file \"chSettings.json\" found."
               << std::endl;
     return 1;
   }
-
-  // std::vector<std::unique_ptr<THitData>> hitVec;
-  // std::mutex hitMutex;
-  // std::vector<std::thread> threads;
-  // for (auto n = 0; n < 10; n++) {
-  //   std::cout << "Loop " << n << std::endl;
-  //   for (auto i = 0; i < 16; i++) {
-  //     threads.emplace_back([&hitVec, &hitMutex]() {
-  //       std::vector<std::unique_ptr<THitData>> tmpVec;
-  //       for (auto j = 0; j < 10000000; j++) {
-  //         tmpVec.push_back(std::make_unique<THitData>());
-  //       }
-
-  //       std::lock_guard<std::mutex> lock(hitMutex);
-  //       hitVec.insert(hitVec.end(), std::make_move_iterator(tmpVec.begin()),
-  //                     std::make_move_iterator(tmpVec.end()));
-  //     });
-  //   }
-  //   for (auto &thread : threads) {
-  //     thread.join();
-  //   }
-  //   std::cout << "hitVec size: " << hitVec.size() << std::endl;
-  //   threads.clear();
-  //   hitVec.clear();
-  // }
 
   auto builder =
       TEventBuilder(timeWindow, chSettingsVec, fileList, hitFileType);

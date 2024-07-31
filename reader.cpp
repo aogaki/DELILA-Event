@@ -34,49 +34,6 @@ std::vector<std::string> GetFileList(const std::string dirName)
   return fileList;
 }
 
-ChSettingsVec_t chSettingsVec;
-ChSettingsVec_t GetChSettings(const std::string fileName)
-{
-  ChSettingsVec_t chSettingsVec;
-
-  std::ifstream ifs(fileName);
-  if (!ifs) {
-    std::cerr << "File not found: " << fileName << std::endl;
-    return chSettingsVec;
-  }
-
-  nlohmann::json j;
-  ifs >> j;
-
-  for (const auto &mod : j) {
-    std::vector<ChSettings_t> chSettings;
-    for (const auto &ch : mod) {
-      ChSettings_t chSetting;
-      chSetting.isEventTrigger = ch["IsEventTrigger"];
-      chSetting.mod = ch["Module"];
-      chSetting.ch = ch["Channel"];
-      chSetting.timeOffset = ch["TimeOffset"];
-      chSetting.hasAC = ch["HasAC"];
-      chSetting.ACMod = ch["ACModule"];
-      chSetting.ACCh = ch["ACChannel"];
-      chSetting.phi = ch["Phi"];
-      chSetting.theta = ch["Theta"];
-      chSetting.distance = ch["Distance"];
-      chSetting.x = ch["x"];
-      chSetting.y = ch["y"];
-      chSetting.z = ch["z"];
-      chSetting.p0 = ch["p0"];
-      chSetting.p1 = ch["p1"];
-      chSetting.p2 = ch["p2"];
-      chSetting.p3 = ch["p3"];
-      chSettings.push_back(chSetting);
-    }
-    chSettingsVec.push_back(chSettings);
-  }
-
-  return chSettingsVec;
-}
-
 TH2D *histTime[34];
 TH1D *histSize;
 void InitHists()
@@ -85,7 +42,7 @@ void InitHists()
     histTime[i] =
         new TH2D(Form("histTime_%d", i),
                  Form("Time difference ID%02d and other detectors", i), 20000,
-                 -1000, 1000, 112, -0.5, 111.5);
+                 -1000, 1000, 151, -0.5, 150.5);
     histTime[i]->SetXTitle("[ns]");
     histTime[i]->SetYTitle("Detector ID");
   }
@@ -103,6 +60,7 @@ Double_t GetCalibratedEnergy(const ChSettings_t &chSetting, const UShort_t &adc)
 // TH1 is thread safe.  But if you get something trouble, you can use mutex.
 std::mutex histMutex;
 std::mutex counterMutex;
+ChSettingsVec_t chSettingsVec;
 void AnalysisThread(TString fileName, uint32_t threadNo)
 {
   ROOT::EnableThreadSafety();
@@ -142,7 +100,8 @@ void AnalysisThread(TString fileName, uint32_t threadNo)
 
     tree->GetEntry(i);
 
-    if (isFissionTrigger) {
+    // if (isFissionTrigger) {
+    if (true) {
       for (auto &hit : *event) {
         auto id = hit.Board * 16 + hit.Channel;
         if (hit.Timestamp != 0.) {
@@ -179,7 +138,7 @@ void reader()
 {
   gSystem->Load("./libEveBuilder.so");
   auto settingsFileName = "./chSettings.json";
-  chSettingsVec = GetChSettings(settingsFileName);
+  chSettingsVec = TChSettings::GetChSettings(settingsFileName);
   InitHists();
 
   auto fileList = GetFileList("./");
@@ -209,8 +168,8 @@ void reader()
   std::vector<double> timeVec;
   int counter = 0;
   for (auto &hist : histVec) {
-    if (hist->GetEntries() > 0) {
-      auto name = Form("f%d", counter++);
+    if (hist->GetEntries() > 0 && counter >= 16 && counter <= 65) {
+      auto name = Form("f%d", counter);
       auto f1 = new TF1(name, "gaus");
       auto maxBin = hist->GetMaximumBin();
       auto height = hist->GetBinContent(maxBin);
@@ -226,9 +185,13 @@ void reader()
       //hist->Fit(f1, "RQ");
 
       timeVec.push_back(f1->GetParameter(1));
+    } else if (hist->GetEntries() > 0 && counter >= 80) {
+      timeVec.push_back(-400.);
     } else {
       timeVec.push_back(0.);
     }
+
+    counter++;
   }
 
   for (auto i = 0; i < timeVec.size(); i++) {
@@ -248,4 +211,6 @@ void reader()
   // std::cout << j.dump(4) << std::endl;
   std::ofstream fout("tmp.json");
   fout << j.dump(4) << std::endl;
+
+  histTime[0]->Draw();
 }

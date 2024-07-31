@@ -13,6 +13,16 @@ TEventBuilder::TEventBuilder(Double_t timeWindow, ChSettingsVec_t chSettingsVec,
   fChSettingsVec = chSettingsVec;
   fFileList = fileList;
   fHitType = hitType;
+
+  for (auto i = 0; i < fChSettingsVec.size(); i++) {
+    for (auto j = 0; j < fChSettingsVec.at(i).size(); j++) {
+      if (fChSettingsVec.at(i).at(j).isEventTrigger) {
+        fIsTriggerDetector.push_back(true);
+      } else {
+        fIsTriggerDetector.push_back(false);
+      }
+    }
+  }
 }
 
 void TEventBuilder::BuildEvent(uint32_t nFiles, uint32_t nThreads)
@@ -43,6 +53,8 @@ void TEventBuilder::BuildEvent(uint32_t nFiles, uint32_t nThreads)
 
     if (fHitType == HitFileType::ELIGANT) {
       SearchAndWriteELIGANTEvents(nThreads, firstRun);
+    } else if (fHitType == HitFileType::DELILA) {
+      SearchAndWriteFissionEvents(nThreads, firstRun);
     }
 
     fHitVec.reset();
@@ -139,7 +151,8 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
               int32_t detectorID = fChSettingsVec.at(hitPast.Board)
                                        .at(hitPast.Channel)
                                        .detectorID;
-              if (0 <= detectorID && detectorID < triggerID) {
+              if (fIsTriggerDetector.at(detectorID) &&
+                  detectorID <= triggerID) {  // reject same detector also
                 fillingFlag = false;
                 break;
               }
@@ -174,7 +187,8 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
               int32_t detectorID = fChSettingsVec.at(hitFuture.Board)
                                        .at(hitFuture.Channel)
                                        .detectorID;
-              if (0 <= detectorID && detectorID < triggerID) {
+              // Do not reject same detector
+              if (fIsTriggerDetector.at(detectorID) && detectorID < triggerID) {
                 fillingFlag = false;
                 break;
               }
@@ -199,7 +213,183 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
             }
           }
 
-          if (fillingFlag && multiplicity > 1) {  // reject single hit event
+          if (fillingFlag && multiplicity > 1 &&
+              (ejMultiplicity + gsMultiplicity) > 2) {
+            std::sort(event->begin(), event->end(),
+                      [](const THitData &a, const THitData &b) {
+                        return a.Timestamp < b.Timestamp;
+                      });
+
+            if (multiplicity > 2 && eneSum > 1000 && gammaMultiplicity > 0)
+              isFissionTrigger = true;
+
+            // if (isFissionTrigger) tree->Fill();
+            tree->Fill();
+          }
+
+          event->clear();
+        }
+      }
+
+      tree->Write();
+      // file->Close();
+      delete file;
+    });
+  }
+
+  for (auto &thread : threads) {
+    thread.join();
+  }
+
+  fHitVec->clear();
+  // fHitVec->reset();
+}
+
+void TEventBuilder::SearchAndWriteFissionEvents(uint32_t nThreads,
+                                                bool firstRun)
+{
+  // ROOT::EnableThreadSafety();
+
+  std::vector<std::thread> threads;
+  for (auto i = 0; i < nThreads; i++) {
+    threads.emplace_back([this, i, nThreads, firstRun]() {
+      auto fileName = Form("event_t%d.root", i);
+      auto treeName = Form("Event_Tree");
+      TFile *file = nullptr;
+      TTree *tree = nullptr;
+      std::vector<THitData> *event = new std::vector<THitData>();
+      UChar_t triggerID;
+      Double_t triggerTS;
+      UChar_t multiplicity;
+      UChar_t gammaMultiplicity;
+      UChar_t ejMultiplicity;
+      UChar_t gsMultiplicity;
+      Bool_t isFissionTrigger;
+      if (firstRun) {
+        file = TFile::Open(fileName, "RECREATE");
+        tree = new TTree(treeName, "Event Tree");
+        tree->Branch("Event", &event);
+        tree->Branch("TriggerID", &triggerID);
+        tree->Branch("TriggerTS", &triggerTS);
+        tree->Branch("Multiplicity", &multiplicity);
+        tree->Branch("GammaMultiplicity", &gammaMultiplicity);
+        tree->Branch("EJMultiplicity", &ejMultiplicity);
+        tree->Branch("GSMultiplicity", &gsMultiplicity);
+        tree->Branch("IsFissionTrigger", &isFissionTrigger);
+      } else {
+        file = TFile::Open(fileName, "UPDATE");
+        tree = dynamic_cast<TTree *>(file->Get(treeName));
+        tree->SetBranchAddress("Event", &event);
+        tree->SetBranchAddress("TriggerID", &triggerID);
+        tree->SetBranchAddress("TriggerTS", &triggerTS);
+        tree->SetBranchAddress("Multiplicity", &multiplicity);
+        tree->SetBranchAddress("GammaMultiplicity", &gammaMultiplicity);
+        tree->SetBranchAddress("EJMultiplicity", &ejMultiplicity);
+        tree->SetBranchAddress("GSMultiplicity", &gsMultiplicity);
+        tree->SetBranchAddress("IsFissionTrigger", &isFissionTrigger);
+      }
+      tree->SetDirectory(file);
+
+      for (auto j = i; j < fHitVec->size(); j += nThreads) {
+        auto hit = THitData(fHitVec->at(j));
+        if (fChSettingsVec.at(hit.Board).at(hit.Channel).isEventTrigger) {
+          bool fillingFlag = true;
+
+          triggerID = fChSettingsVec.at(hit.Board).at(hit.Channel).detectorID;
+          triggerTS = hit.Timestamp;
+          multiplicity = 0;
+          gammaMultiplicity = 0;
+          ejMultiplicity = 0;
+          gsMultiplicity = 0;
+          isFissionTrigger = false;
+
+          double eneSum = GetCalibratedEnergy(
+              fChSettingsVec.at(hit.Board).at(hit.Channel), hit.Energy);
+
+          const Double_t eventTS = triggerTS;
+          event->emplace_back(hit.Board, hit.Channel, 0, hit.Energy,
+                              hit.EnergyShort);
+          multiplicity++;
+          if (31 < triggerID && triggerID < 66) {
+            gammaMultiplicity++;
+          } else if (79 < triggerID && triggerID < 117) {
+            ejMultiplicity++;
+          } else if (118 < triggerID && triggerID < 144) {
+            gsMultiplicity++;
+          }
+          // Search for hits in the past
+          if (fillingFlag && j > 0) {
+            for (auto k = j - 1; k >= 0; k--) {
+              auto hitPast = THitData(fHitVec->at(k));
+              if (hitPast.Timestamp < eventTS - fTimeWindow / 2) {
+                break;
+              }
+              int32_t detectorID = fChSettingsVec.at(hitPast.Board)
+                                       .at(hitPast.Channel)
+                                       .detectorID;
+              if (fIsTriggerDetector.at(detectorID) &&
+                  detectorID <= triggerID) {  // reject same detector also
+                fillingFlag = false;
+                break;
+              }
+
+              event->emplace_back(hitPast.Board, hitPast.Channel,
+                                  hitPast.Timestamp - eventTS, hitPast.Energy,
+                                  hitPast.EnergyShort);
+
+              eneSum += GetCalibratedEnergy(
+                  fChSettingsVec.at(hitPast.Board).at(hitPast.Channel),
+                  hitPast.Energy);
+
+              auto id = hitPast.Board * 16 + hitPast.Channel;
+              multiplicity++;
+              if (31 < triggerID && triggerID < 66) {
+                gammaMultiplicity++;
+              } else if (79 < triggerID && triggerID < 117) {
+                ejMultiplicity++;
+              } else if (118 < triggerID && triggerID < 144) {
+                gsMultiplicity++;
+              }
+            }
+          }
+
+          // Search for hits in the future
+          if (fillingFlag && j + 1 < fHitVec->size()) {
+            for (auto k = j + 1; k < fHitVec->size(); k++) {
+              auto hitFuture = THitData(fHitVec->at(k));
+              if (hitFuture.Timestamp > eventTS + fTimeWindow / 2) {
+                break;
+              }
+              int32_t detectorID = fChSettingsVec.at(hitFuture.Board)
+                                       .at(hitFuture.Channel)
+                                       .detectorID;
+              // Do not reject same detector
+              if (fIsTriggerDetector.at(detectorID) && detectorID < triggerID) {
+                fillingFlag = false;
+                break;
+              }
+
+              event->emplace_back(hitFuture.Board, hitFuture.Channel,
+                                  hitFuture.Timestamp - eventTS,
+                                  hitFuture.Energy, hitFuture.EnergyShort);
+
+              eneSum += GetCalibratedEnergy(
+                  fChSettingsVec.at(hitFuture.Board).at(hitFuture.Channel),
+                  hitFuture.Energy);
+
+              auto id = hitFuture.Board * 16 + hitFuture.Channel;
+              multiplicity++;
+              if (31 < triggerID && triggerID < 66) {
+                gammaMultiplicity++;
+              } else if (79 < triggerID && triggerID < 117) {
+                ejMultiplicity++;
+              } else if (118 < triggerID && triggerID < 144) {
+                gsMultiplicity++;
+              }
+            }
+          }
+
+          if (fillingFlag && multiplicity > 1) {
             std::sort(event->begin(), event->end(),
                       [](const THitData &a, const THitData &b) {
                         return a.Timestamp < b.Timestamp;

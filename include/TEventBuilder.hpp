@@ -7,6 +7,7 @@
 
 #include <deque>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -19,10 +20,10 @@
 class TEventBuilder
 {
  public:
-  TEventBuilder(){};
+  TEventBuilder() {};
   TEventBuilder(Double_t timeWindow, ChSettingsVec_t chSettingsVec,
                 std::vector<std::string> fileList, HitFileType hitType);
-  ~TEventBuilder(){};
+  ~TEventBuilder() {};
 
   void BuildEvent(uint32_t nFiles = 10, uint32_t nThreads = 16);
 
@@ -33,9 +34,12 @@ class TEventBuilder
   Double_t fTimeWindow = 1000;  // in ns
   void SearchAndWriteELIGANTEvents(uint32_t nThreads = 16,
                                    bool firstRun = false);
+  void SearchAndWriteFissionEvents(uint32_t nThreads = 16,
+                                   bool firstRun = false);
 
   std::vector<std::string> fFileList;
   ChSettingsVec_t fChSettingsVec;
+  std::vector<bool> fIsTriggerDetector;
   std::unique_ptr<std::vector<HitData_t>> fHitVec;
   HitFileType fHitType = HitFileType::DELILA;
 };

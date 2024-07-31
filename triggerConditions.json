@@ -1,0 +1,20 @@
+[
+    {
+        "Type": "Accept",
+        "CoincidenceID": 5,
+        "Condition": "MoreThan",
+        "Threshold": 1
+    },
+    {
+        "Type": "Reject",
+        "CoincidenceID": 4,
+        "Condition": "LessThan",
+        "Threshold": 3
+    },
+    {
+        "Type": "Accept",
+        "CoincidenceID": 3,
+        "Condition": "EqualTo",
+        "Threshold": 1
+    }
+]
