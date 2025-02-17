@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/aogaki/DAQ/DELILA-Event/run99",
+  "command": "/usr/bin/c++ -DEveBuilder_EXPORTS -I/opt/ROOT/include -I/home/aogaki/DAQ/DELILA-Event -I/home/aogaki/DAQ/DELILA-Event/include   -pipe -fsigned-char -pthread -std=gnu++17 -fPIC -pthread -O2 -fopenmp -o CMakeFiles/EveBuilder.dir/src/TCoincidenceCondition.cpp.o -c /home/aogaki/DAQ/DELILA-Event/src/TCoincidenceCondition.cpp",
+  "file": "/home/aogaki/DAQ/DELILA-Event/src/TCoincidenceCondition.cpp",
+  "output": "CMakeFiles/EveBuilder.dir/src/TCoincidenceCondition.cpp.o"
+},
+{
+  "directory": "/home/aogaki/DAQ/DELILA-Event/run99",
+  "command": "/usr/bin/c++ -DEveBuilder_EXPORTS -I/opt/ROOT/include -I/home/aogaki/DAQ/DELILA-Event -I/home/aogaki/DAQ/DELILA-Event/include   -pipe -fsigned-char -pthread -std=gnu++17 -fPIC -pthread -O2 -fopenmp -o CMakeFiles/EveBuilder.dir/src/TEventBuilder.cpp.o -c /home/aogaki/DAQ/DELILA-Event/src/TEventBuilder.cpp",
+  "file": "/home/aogaki/DAQ/DELILA-Event/src/TEventBuilder.cpp",
+  "output": "CMakeFiles/EveBuilder.dir/src/TEventBuilder.cpp.o"
+},
+{
+  "directory": "/home/aogaki/DAQ/DELILA-Event/run99",
+  "command": "/usr/bin/c++ -DEveBuilder_EXPORTS -I/opt/ROOT/include -I/home/aogaki/DAQ/DELILA-Event -I/home/aogaki/DAQ/DELILA-Event/include   -pipe -fsigned-char -pthread -std=gnu++17 -fPIC -pthread -O2 -fopenmp -o CMakeFiles/EveBuilder.dir/src/THitLoader.cpp.o -c /home/aogaki/DAQ/DELILA-Event/src/THitLoader.cpp",
+  "file": "/home/aogaki/DAQ/DELILA-Event/src/THitLoader.cpp",
+  "output": "CMakeFiles/EveBuilder.dir/src/THitLoader.cpp.o"
+},
+{
+  "directory": "/home/aogaki/DAQ/DELILA-Event/run99",
+  "command": "/usr/bin/c++ -DEveBuilder_EXPORTS -I/opt/ROOT/include -I/home/aogaki/DAQ/DELILA-Event -I/home/aogaki/DAQ/DELILA-Event/include   -pipe -fsigned-char -pthread -std=gnu++17 -fPIC -pthread -O2 -fopenmp -o CMakeFiles/EveBuilder.dir/G__EveBuilder.cxx.o -c /home/aogaki/DAQ/DELILA-Event/run99/G__EveBuilder.cxx",
+  "file": "/home/aogaki/DAQ/DELILA-Event/run99/G__EveBuilder.cxx",
+  "output": "CMakeFiles/EveBuilder.dir/G__EveBuilder.cxx.o"
+},
+{
+  "directory": "/home/aogaki/DAQ/DELILA-Event/run99",
+  "command": "/usr/bin/c++  -I/opt/ROOT/include -I/home/aogaki/DAQ/DELILA-Event -I/home/aogaki/DAQ/DELILA-Event/include   -pipe -fsigned-char -pthread -std=gnu++17 -pthread -O2 -fopenmp -o CMakeFiles/eve-builder.dir/main.cpp.o -c /home/aogaki/DAQ/DELILA-Event/main.cpp",
+  "file": "/home/aogaki/DAQ/DELILA-Event/main.cpp",
+  "output": "CMakeFiles/eve-builder.dir/main.cpp.o"
+}
+]
