@@ -126,8 +126,8 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
           ejMultiplicity = 0;
           gsMultiplicity = 0;
           isFissionTrigger = false;
-          isHitFront = false;
-          isHitBack = false;
+          auto isHitFront = false;
+          auto isHitBack = false;
 
           if(hit.Board == 0) isHitFront = true;
           if(hit.Board == 1) isHitBack = true;
