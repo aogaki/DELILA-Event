@@ -126,6 +126,11 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
           ejMultiplicity = 0;
           gsMultiplicity = 0;
           isFissionTrigger = false;
+          isHitFront = false;
+          isHitBack = false;
+
+          if(hit.Board == 0) isHitFront = true;
+          if(hit.Board == 1) isHitBack = true;
 
           double eneSum = GetCalibratedEnergy(
               fChSettingsVec.at(hit.Board).at(hit.Channel), hit.Energy);
@@ -165,6 +170,9 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
                   fChSettingsVec.at(hitPast.Board).at(hitPast.Channel),
                   hitPast.Energy);
 
+              if(hitPast.Board == 0) isHitFront = true;
+              if(hitPast.Board == 1) isHitBack = true;
+
               auto id = hitPast.Board * 16 + hitPast.Channel;
               multiplicity++;
               if (id < 34) {
@@ -201,6 +209,9 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
                   fChSettingsVec.at(hitFuture.Board).at(hitFuture.Channel),
                   hitFuture.Energy);
 
+              if(hitFuture.Board == 0) isHitFront = true;
+              if(hitFuture.Board == 1) isHitBack = true;
+
               auto id = hitFuture.Board * 16 + hitFuture.Channel;
               multiplicity++;
               if (id < 34) {
@@ -213,8 +224,7 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
             }
           }
 
-          if (fillingFlag && multiplicity > 1 &&
-              (ejMultiplicity + gsMultiplicity) > 2) {
+          if (fillingFlag && isHitFront && isHitBack &&) {
             std::sort(event->begin(), event->end(),
                       [](const THitData &a, const THitData &b) {
                         return a.Timestamp < b.Timestamp;
