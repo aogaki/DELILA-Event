@@ -224,7 +224,7 @@ void TEventBuilder::SearchAndWriteELIGANTEvents(uint32_t nThreads,
             }
           }
 
-          if (fillingFlag && isHitFront && isHitBack &&) {
+          if (fillingFlag && isHitFront && isHitBack) {
             std::sort(event->begin(), event->end(),
                       [](const THitData &a, const THitData &b) {
                         return a.Timestamp < b.Timestamp;
